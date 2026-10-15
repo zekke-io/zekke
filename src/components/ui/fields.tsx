@@ -23,12 +23,12 @@ import { IconButton } from './Button';
 import { EyeIcon, EyeOffIcon } from './icons';
 
 const INPUT_CLASS =
-  'mt-1.5 w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink outline-none transition-all placeholder:text-ink-faint focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:bg-raised disabled:text-ink-muted';
+  'mt-1.5 w-full rounded-2xl border-2 border-line bg-surface px-4 py-2.5 text-base font-semibold text-ink outline-none transition-all placeholder:text-ink-faint focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:bg-raised disabled:text-ink-muted';
 
 const PIN_BOX_CLASS =
-  'h-12 w-11 min-w-0 shrink rounded-lg border border-line bg-surface text-center text-lg font-semibold text-ink outline-none transition-all focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:bg-raised disabled:text-ink-muted';
+  'h-12 w-11 min-w-0 shrink rounded-2xl border-2 border-line bg-surface text-center text-xl font-black text-ink outline-none transition-all focus:border-brand-400 focus:ring-2 focus:ring-brand-100 disabled:bg-raised disabled:text-ink-muted';
 
-const LABEL_CLASS = 'text-compact font-semibold text-ink-soft';
+const LABEL_CLASS = 'text-compact font-extrabold text-ink';
 
 const HINT_CLASS = 'mt-1.5 block text-compact text-ink-muted';
 

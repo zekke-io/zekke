@@ -13,6 +13,7 @@ no item type. Import them from the barrel, `@/components/ui`; the icons are a se
 | `Badge.tsx`, `Notice.tsx`, `Empty.tsx`, `Spinner.tsx` | Status and empty-state surfaces |
 | `SizeStepper.tsx` | The grids' icon-size control ([The size control](#the-size-control)) |
 | `LayoutToggle.tsx` | Grid or list, on the drive and documents ([Grid or list](../tiles/README.md#grid-or-list)) |
+| `Tatu.tsx` | The armadillo: `Tatu`, the open one that walks beside the wordmark, and `TatuClosed`, the ball on the unlock and sign-up screens. Inline SVGs with ids from `useId`, in the brand's fixed colours |
 | `icons.tsx` | The stroke-icon set shared by navigation and primitives, plus `FileTypeIcon`, `FolderGlyph` and `UndoIcon` (flipped for redo), which both editors use |
 
 **Text entry goes through these fields, never a bare `<input>`.** `Field` and `TextArea` turn

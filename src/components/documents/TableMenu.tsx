@@ -112,7 +112,7 @@ function InsertTable({ editor, onDone }: { editor: Editor; onDone: () => void })
         <button
           type="button"
           onClick={() => insert(Number(rows), Number(columns))}
-          className="mt-3 h-8 w-full rounded-md bg-brand-600 text-sm text-white transition-colors hover:bg-brand-700"
+          className="mt-3 h-8 w-full rounded-md bg-brand-500 text-sm text-on-brand transition-colors hover:bg-brand-700"
         >
           Insert table
         </button>

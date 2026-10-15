@@ -503,7 +503,7 @@ function LinkControl({
           <button
             type="button"
             onClick={apply}
-            className="h-8 rounded-md bg-brand-600 px-2.5 text-sm text-white transition-colors hover:bg-brand-700"
+            className="h-8 rounded-md bg-brand-500 px-2.5 text-sm text-on-brand transition-colors hover:bg-brand-700"
           >
             Apply
           </button>

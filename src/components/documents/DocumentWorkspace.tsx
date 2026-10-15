@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { Doc as YDoc } from 'yjs';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { isSpreadsheet } from '@/lib/spreadsheets/layout';
@@ -40,7 +39,7 @@ import {
   writeRulersShown,
   type DocumentView,
 } from '@/lib/app';
-import { Notice, Spinner } from '@/components/ui';
+import { Notice, Spinner, Tatu } from '@/components/ui';
 import { documentExtensions } from './extensions';
 import { DOCUMENT_FONT_VARIABLES } from './fonts';
 import { pageCountOf } from './pagination';
@@ -224,7 +223,7 @@ function DocumentSurface({ id, doc, state }: { id: string; doc: YDoc; state: Syn
       >
         <div className="flex items-center gap-1 px-2 py-1.5 docside:items-start docside:gap-3 docside:px-3 docside:py-2">
           <Link href="/" aria-label="Back to your vault" className="shrink-0">
-            <Image src="/zekke-logo.png" alt="Zekke" width={28} height={28} priority />
+            <Tatu className="h-7 w-auto" />
           </Link>
           <div ref={titleArea} className="min-w-0 flex-1 docside:max-w-md docside:flex-none">
             <TitleInput

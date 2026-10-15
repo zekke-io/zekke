@@ -12,8 +12,8 @@ function FeatureArt({ children }: { children: (fill: string) => ReactNode }) {
     <svg aria-hidden="true" viewBox="0 0 64 64" fill="none" className="h-full w-full">
       <defs>
         <linearGradient id={id} x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="var(--color-brand-700)" />
-          <stop offset="1" stopColor="var(--color-accent-400)" />
+          <stop offset="0" stopColor="var(--color-brand-500)" />
+          <stop offset="1" stopColor="var(--color-brand-300)" />
         </linearGradient>
       </defs>
       {children(`url(#${id})`)}

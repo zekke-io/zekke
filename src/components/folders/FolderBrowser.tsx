@@ -437,8 +437,8 @@ export function FolderTile({
         onClick={() => state.open(folder.id)}
         disabled={state.busy}
         aria-label={`Open folder ${label}`}
-        className={`flex w-full flex-col items-center gap-1.5 rounded-lg p-2 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-60 ${
-          drop.over ? 'bg-brand-50 ring-2 ring-brand-400' : 'hover:bg-raised'
+        className={`flex w-full flex-col items-center gap-1.5 rounded-2xl p-2 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-60 ${
+          drop.over ? 'bg-brand-100 ring-2 ring-brand-400' : 'hover:bg-brand-50'
         }`}
       >
         <span

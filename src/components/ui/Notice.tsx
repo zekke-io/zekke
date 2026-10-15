@@ -21,13 +21,13 @@ export function Notice({
 }) {
   if (onDismiss === undefined) {
     return (
-      <div className={`rounded-xl border px-4 py-3 text-compact ${NOTICE_TONES[tone]}`}>{children}</div>
+      <div className={`rounded-2xl border px-4 py-3 text-compact ${NOTICE_TONES[tone]}`}>{children}</div>
     );
   }
 
   return (
     <div
-      className={`flex items-start gap-2 rounded-xl border py-3 pl-4 pr-2 text-compact ${NOTICE_TONES[tone]}`}
+      className={`flex items-start gap-2 rounded-2xl border py-3 pl-4 pr-2 text-compact ${NOTICE_TONES[tone]}`}
     >
       <div className="min-w-0 flex-1">{children}</div>
       <button

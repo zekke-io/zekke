@@ -121,7 +121,7 @@ the grid read as a table.
   landscape — the box is a ceiling on the longest edge, not a shape imposed on the picture.
   `object-cover` was the previous behaviour and it centre-cropped every photo to A4.
 - **Everything else gets a type icon.** `FileTypeIcon` in [`icons.tsx`](../ui/icons.tsx) is one SVG:
-  a sheet coloured by its kind, a folded corner, and the extension written across it in white — the
+  a sheet with a folded corner, a mark drawn for its kind, and the extension written on a coloured label (a CSV gets its own teal sheet and comma rows, an archive a zipper) — the
   extension is the fastest identifier a user has, and the colour is what makes a wall of them
   scannable. The colours are the `--color-file-*` tokens in [`globals.css`](../../app/globals.css):
 
