@@ -7,4 +7,5 @@ export * from './fields';
 export * from './LayoutToggle';
 export * from './Notice';
 export * from './SizeStepper';
+export * from './Tatu';
 export * from './Spinner';

@@ -14,6 +14,8 @@ The frame around every screen, and what sits in it.
 | `StorageMeter.tsx` | The account's storage bar, in the sidebar corner — stored bytes solid, reservations behind them |
 | `StagingBanner.tsx` | The walking red warning banner, dev-only — see [`app`](../../app/README.md#the-staging-banner) |
 
+The brand mark is the walking armadillo (`Tatu`, from [`components/ui`](../ui/README.md)) beside the lowercase `zekke` wordmark; the sidebar is the cream ground, and the active item is a peach pill.
+
 ## Layout and design system
 
 The shell is a Drive-style dashboard: a fixed left sidebar with the logo, the navigation and the

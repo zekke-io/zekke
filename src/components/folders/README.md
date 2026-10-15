@@ -41,9 +41,9 @@ per folder down to the open one, and *New folder* on the right. `useFolderTree(s
 holds the tree and the open folder; the screen lists only the open folder's items
 (`?folder=<id>|root`), so a folder of thousands draws its first page without decrypting the rest.
 
-- **Folders look like an operating system's**: `FolderGlyph` in `icons.tsx` is a two-tone folder in
-  the brand indigo (`folder-back`, `folder-front`, `folder-shine` tokens in `globals.css`) whose front
-  flap opens while something is dragged over it. Folders come first in the grid, in the same cells as
+- **Folders look like an operating system's**: `FolderGlyph` in `icons.tsx` is an orange miniature
+  (`folder-back`, `folder-front`, `folder-shine` tokens in `globals.css`) with two sheets showing
+  behind the front panel, which lift while something is dragged over it. Folders come first in the grid, in the same cells as
   the items, and **at the same scale as the items beside them**. On the Drive a file is a glyph of
   `iconScale(size).glyphPixels`, so the folder gets `glyphPixels` too. Documents is laid out like the
   Drive, with pages as wide as the drive's glyphs, so its folders take the same `glyphPixels` and a

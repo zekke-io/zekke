@@ -20,8 +20,7 @@ inline SVG needs no `img-src` entry in the Content Security Policy.
 
 Two things changed in the copy, and nothing else:
 
-- **The colours are tokens.** The ramp is `#4338ca → #a78bfa`, which is exactly `brand-700 →
-  accent-400`, so the stops read `var(--color-brand-700)` and `var(--color-accent-400)`, and the
+- **The colours are tokens.** The ramp is `brand-500 → brand-300`, so the stops read `var(--color-brand-500)` and `var(--color-brand-300)`, and the
   knock-outs `var(--color-surface)`. A palette change reaches the icons.
 - **The gradient id comes from `useId`.** An inlined SVG's ids are global to the page, so six
   icons all declaring `g-drive` would all paint with whichever gradient was defined first. The id

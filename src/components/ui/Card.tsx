@@ -7,7 +7,7 @@ export function PanelGrid({ children }: { children: ReactNode }) {
 export function Panel({ padded = true, children }: { padded?: boolean; children: ReactNode }) {
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-line bg-surface shadow-raised ${padded ? 'p-6' : ''}`}
+      className={`overflow-hidden rounded-3xl border border-line bg-surface shadow-raised ${padded ? 'p-6' : ''}`}
     >
       {children}
     </div>

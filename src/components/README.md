@@ -56,20 +56,30 @@ Every colour, type step and shadow is a Tailwind v4 `@theme` token in
 [`globals.css`](../app/globals.css). Components name tokens (`bg-surface`, `text-ink-muted`,
 `border-line`, `shadow-card`) and never raw palette values, so a palette change is one file.
 
-The palette is the Zekke design system as `zekke.io` uses it, with the three adjustments that
-system itself flags for text-dense surfaces:
+The palette is the Zekke brand: Nunito, orange on cream, and a night-violet dark mode. The design
+is the *Zekke Web App* canvas, built on the brand, landing and app canvases.
 
-- **Brand indigo `#6366f1` is not a text colour on light grounds** (4.47:1). `brand-500` is for
-  fills, the logo and the active nav icon; `brand-600` `#4f46e5` carries filled buttons and
-  `brand-700` `#4338ca` carries links and labels.
-- **Status colours are the accessible pairs, not the decorative ones**: `success` `#047857`,
-  `warning` `#b45309`, `danger` `#b91c1c`, each with its `-bg` and `-line` companion.
-- **Grey is a four-step ink ramp**, `ink` `#1f2937` → `ink-soft` → `ink-muted` → `ink-faint`.
-  `ink-faint` `#9ca3af` is 2.5:1 on white and is decoration only — never body copy.
+- **Orange is a fill, never a text colour on light grounds.** `brand-500` `#ff7a1a` carries filled
+  buttons, the armadillo and the active marks, and **text on it is `text-on-brand`** `#2a1608`, never
+  white (white on the orange is 2.6:1). `brand-700` `#c2410c` carries links and labels.
+  `brand-100` is the peach of soft controls and the active navigation pill.
+- **Ground and ink are warm**: `ground` cream `#fff4e8`, `surface` white, `ink` `#2a1608` → `ink-soft`
+  → `ink-muted`. `ink-faint` is decoration only — never body copy. Violet `accent-500` `#6b4cf0` is
+  kept for small "only you see this" details.
+- **Status colours are the accessible pairs**: `success`, `warning`, `danger`, each with its `-bg`
+  and `-line` companion.
+- **Dark mode is the same tokens redefined** in a `prefers-color-scheme: dark` block in
+  `globals.css` (`data-theme="light"` on `<html>` opts out). The ramp inverts there — `brand-50` to
+  `brand-200` become the violet greys and `brand-700` becomes amber — so a component written against
+  the tokens needs nothing. Fixed hexes are for the things that keep their colour in both modes: the
+  armadillo, the file icons' pages and the folder's sheets.
+- **Type** is Nunito (`--font-nunito`, loaded by `next/font`): Black for headlines, ExtraBold for
+  controls and titles, Semibold for body. The logo is lowercase, `zekke`.
 
-Shape follows the same system: `rounded-lg` (8px) for buttons and controls, `rounded-2xl` (16px)
-for cards, panels and modals, `rounded-full` for badges. Depth is three shadows — `shadow-card`
-at rest, `shadow-raised` for a lifted control, `shadow-lift` for a hover lift or a modal.
+Shape follows the brand: `rounded-full` for buttons, nav items, the account button and badges,
+`rounded-2xl` for fields, notices and tiles, `rounded-3xl` for panels and modals. Depth is three
+warm-tinted shadows — `shadow-card` at rest, `shadow-raised` for a lifted control, `shadow-lift` for a
+hover lift or a modal.
 
 **A block is not drawn at all.** `Card` has no border, no background, no shadow and no padding of
 its own — it is a heading, an optional subtitle, and the content, in a `flex flex-col`. Blocks are
