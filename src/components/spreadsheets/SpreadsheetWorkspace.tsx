@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -24,7 +25,7 @@ import {
 } from '@/lib/spreadsheets';
 import * as Y from 'yjs';
 import type { Doc as YDoc } from 'yjs';
-import { Button, Notice, Spinner, Tatu } from '@/components/ui';
+import { Button, Notice, Spinner } from '@/components/ui';
 import { useZekke } from '@/components/session/ZekkeProvider';
 import { SaveStatus, TitleInput } from '@/components/documents/ItemHeader';
 import { useDocumentSync, type DocumentSyncSetup } from '@/components/documents/useDocumentSync';
@@ -113,7 +114,7 @@ function SpreadsheetSurface({ id, sync, state }: { id: string; sync: DocumentSyn
       <header className="relative z-20 shrink-0 border-b border-line bg-surface">
         <div className="flex items-start gap-3 px-3 py-2">
           <Link href="/" aria-label="Back to your vault" className="mt-1 shrink-0">
-            <Tatu className="h-7 w-auto" />
+            <Image src="/zekke-logo.png" alt="Zekke" width={28} height={28} priority />
           </Link>
           <div className="min-w-0 max-w-md flex-none">
             <TitleInput doc={doc} label="Spreadsheet title" placeholder={UNTITLED_SPREADSHEET} fit />

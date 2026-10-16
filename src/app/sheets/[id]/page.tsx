@@ -1,15 +1,23 @@
-'use client';
+"use client";
 
-import { use } from 'react';
-import SpreadsheetWorkspace from '@/components/spreadsheets/SpreadsheetWorkspace';
-import SessionGate from '@/components/session/SessionGate';
+import { use } from "react";
+import SpreadsheetWorkspace from "@/components/spreadsheets/SpreadsheetWorkspace";
+import SessionGate from "@/components/session/SessionGate";
+import LightTheme from "@/components/shell/LightTheme";
 
-export default function SpreadsheetPage({ params }: { params: Promise<{ id: string }> }) {
+export default function SpreadsheetPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
 
   return (
-    <SessionGate>
-      <SpreadsheetWorkspace id={id} />
-    </SessionGate>
+    <>
+      <LightTheme />
+      <SessionGate>
+        <SpreadsheetWorkspace id={id} />
+      </SessionGate>
+    </>
   );
 }

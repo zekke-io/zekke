@@ -8,7 +8,7 @@ in [`src/components`](../components/README.md) and every testable decision in
 | -------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `layout.tsx`         | The root layout, fonts, `metadata`, `translate="no"`, the shared `AppProviders`, and `StagingBanner`                |
 | `page.tsx`           | The dashboard, behind `SessionGate`                                                                                 |
-| `docs/[id]/page.tsx` | One document, behind `SessionGate` — the editor route                                                               |
+| `docs/[id]/page.tsx` | One document, behind `SessionGate` and locked to the light theme (`LightTheme`) — the editor route                                                               |
 | `globals.css`        | Tailwind import, the `brand` colour scale, light/dark surface tokens, `.zekke-prose`, the `.staging-banner` marquee |
 
 ## The page is never translated, and every response carries security headers

@@ -17,6 +17,7 @@ import { useFeedPolling } from '@/components/session/useFeed';
 import NotesScreen from '@/components/notes/NotesScreen';
 import PasswordsScreen from '@/components/passwords/PasswordsScreen';
 import AccountMenu from './AccountMenu';
+import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
 import NewVersionNotice from './NewVersionNotice';
 import CheckoutReturnNotice from '@/components/plan/CheckoutReturnNotice';
@@ -258,6 +259,7 @@ export default function AppShell() {
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
                   <NotificationBell />
+                  <ThemeToggle />
                   <AccountMenu
                     username={account?.username}
                     logOut={leave}
@@ -278,6 +280,7 @@ export default function AppShell() {
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
                   <NotificationBell />
+                  <ThemeToggle />
                   <AccountMenu
                     username={account?.username}
                     logOut={leave}
