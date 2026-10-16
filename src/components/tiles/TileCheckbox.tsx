@@ -25,7 +25,7 @@ export function TileCheckbox({
       onClick={onToggle}
       className={`absolute z-10 flex h-5 w-5 items-center justify-center rounded-md border shadow-card transition focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${className} ${
         selected
-          ? 'border-brand-500 bg-brand-500 text-white'
+          ? 'border-brand-500 bg-brand-500 text-on-brand'
           : 'border-line-strong bg-surface/90 text-transparent hover:border-brand-400'
       } ${selecting || selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
     >

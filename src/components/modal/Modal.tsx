@@ -51,7 +51,7 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         onKeyDown={onKeyDown}
-        className={`flex max-h-[85vh] w-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-lift outline-none ${
+        className={`flex max-h-[85vh] w-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-lift outline-none ${
           wide ? 'max-w-4xl' : 'max-w-2xl'
         }`}
       >

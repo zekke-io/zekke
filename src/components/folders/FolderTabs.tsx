@@ -51,7 +51,7 @@ function showDragBadge(event: ReactDragEvent, text: string) {
   const badge = document.createElement('div');
   badge.textContent = text;
   badge.className =
-    'fixed -left-[1000px] top-0 rounded-full bg-brand-600 px-3 py-1.5 text-compact font-semibold text-white shadow-raised';
+    'fixed -left-[1000px] top-0 rounded-full bg-brand-500 px-3 py-1.5 text-compact font-semibold text-on-brand shadow-raised';
   document.body.appendChild(badge);
   event.dataTransfer.setDragImage(badge, 12, 12);
   requestAnimationFrame(() => badge.remove());

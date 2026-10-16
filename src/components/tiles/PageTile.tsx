@@ -52,7 +52,7 @@ export function PageTile({
         aria-label={selecting ? `${selected ? 'Deselect' : 'Select'} ${title}` : title}
         className={`flex w-full flex-col transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-60 ${
           iconSized
-            ? 'items-center gap-1.5 rounded-lg p-2 text-center hover:bg-raised'
+            ? 'items-center gap-1.5 rounded-2xl p-2 text-center hover:bg-brand-50'
             : 'gap-2.5 rounded-xl p-1 text-left'
         }`}
       >

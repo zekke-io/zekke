@@ -52,9 +52,9 @@ export default function AccountMenu({
         aria-expanded={open}
         aria-label={ACCOUNT_MENU_COPY.open}
         onClick={() => setOpen((current) => !current)}
-        className="flex min-w-0 cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-raised py-1.5 pl-1.5 pr-3 transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+        className="flex min-w-0 cursor-pointer items-center gap-2.5 rounded-full border border-line bg-surface py-1.5 pl-1.5 pr-4 transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
       >
-        <span className="brand-gradient flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-caption font-semibold text-white">
+        <span className="brand-gradient flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-caption font-black">
           {accountInitial(username)}
         </span>
         <span className="hidden min-w-0 lg:block">
@@ -65,7 +65,7 @@ export default function AccountMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface shadow-lg"
+          className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-surface shadow-lift"
         >
           <button
             type="button"

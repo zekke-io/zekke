@@ -7,11 +7,11 @@ import { PlusIcon } from './icons';
 
 const BUTTON_VARIANTS = {
   primary:
-    'bg-brand-600 text-white shadow-card hover:bg-brand-700 active:bg-brand-800 disabled:bg-brand-300 disabled:shadow-none',
+    'bg-brand-500 text-on-brand shadow-raised hover:bg-brand-600 active:bg-brand-600 disabled:bg-brand-100 disabled:text-ink-muted disabled:shadow-none',
   accent:
-    'brand-gradient text-white shadow-raised hover:opacity-95 hover:shadow-lift disabled:opacity-50 disabled:shadow-card',
+    'brand-gradient shadow-raised hover:opacity-95 hover:shadow-lift disabled:opacity-50 disabled:shadow-card',
   secondary:
-    'border border-line bg-surface text-ink-soft shadow-card hover:border-line-strong hover:bg-raised hover:text-ink disabled:opacity-50',
+    'bg-brand-100 text-ink hover:bg-brand-200 disabled:opacity-50',
   ghost: 'text-ink-muted hover:bg-brand-50 hover:text-brand-700 disabled:opacity-50',
   danger:
     'border border-danger-line bg-surface text-danger shadow-card hover:bg-danger-bg disabled:opacity-50',
@@ -26,7 +26,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-compact font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ground active:scale-[0.99] disabled:pointer-events-none disabled:cursor-not-allowed ${BUTTON_VARIANTS[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-compact font-extrabold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ground active:scale-[0.99] disabled:pointer-events-none disabled:cursor-not-allowed ${BUTTON_VARIANTS[variant]} ${className}`}
       {...props}
     />
   );
@@ -43,7 +43,7 @@ export function IconButton({
       type="button"
       title={label}
       aria-label={label}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:pointer-events-none disabled:opacity-50 ${className}`}
+      className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:pointer-events-none disabled:opacity-50 ${className}`}
       {...props}
     >
       {children}
@@ -65,7 +65,7 @@ const HINTED_TONES = {
 } as const;
 
 export const HINTED_ICON_FRAME =
-  'inline-flex h-9 w-9 items-center justify-center rounded-lg border bg-surface shadow-card transition-all duration-200';
+  'inline-flex h-10 w-10 items-center justify-center rounded-full border bg-surface shadow-card transition-all duration-200';
 
 export function HintFrame({
   hint,
@@ -81,7 +81,7 @@ export function HintFrame({
       {children}
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute z-30 whitespace-nowrap rounded-md bg-ink px-2 py-1 text-caption normal-case tracking-normal text-white opacity-0 shadow-raised transition-opacity duration-150 group-hover/hint:opacity-100 group-has-[:focus-visible]/hint:opacity-100 ${HINT_PLACEMENTS[placement]}`}
+        className={`pointer-events-none absolute z-30 whitespace-nowrap rounded-md bg-ink px-2 py-1 text-caption normal-case tracking-normal text-ground opacity-0 shadow-raised transition-opacity duration-150 group-hover/hint:opacity-100 group-has-[:focus-visible]/hint:opacity-100 ${HINT_PLACEMENTS[placement]}`}
       >
         {hint}
       </span>
@@ -132,7 +132,7 @@ export function FloatingAddButton({
           type="button"
           title={label}
           aria-label={label}
-          className={`brand-gradient pointer-events-auto mb-6 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full text-white shadow-lift transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ground disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 disabled:shadow-card ${className}`}
+          className={`brand-gradient pointer-events-auto mb-6 inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full shadow-lift transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ground disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 disabled:shadow-card ${className}`}
           {...props}
         >
           <PlusIcon className="h-6 w-6 shrink-0" />
@@ -229,7 +229,7 @@ export function FloatingAddMenu({
             aria-expanded={open}
             disabled={disabled}
             onClick={() => setOpen((current) => !current)}
-            className="brand-gradient inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full text-white shadow-lift transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ground disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 disabled:shadow-card"
+            className="brand-gradient inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full shadow-lift transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ground disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 disabled:shadow-card"
           >
             <PlusIcon className={`h-6 w-6 shrink-0 transition-transform duration-200 ${open ? 'rotate-45' : ''}`} />
           </button>

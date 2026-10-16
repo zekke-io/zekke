@@ -1,25 +1,19 @@
 'use client';
 
-import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { useZekke } from './ZekkeProvider';
 import Onboarding from './Onboarding';
 import Unlock from './Unlock';
 import RegionalScope from './RegionalScope';
-import { Spinner } from '@/components/ui';
+import { Spinner, TatuClosed } from '@/components/ui';
 
 export function WelcomeLayout({ width, children }: { width: string; children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-brand-50 via-ground to-ground px-4 py-12">
+    <main className="min-h-screen bg-ground px-4 py-12">
       <div className={`mx-auto ${width} space-y-8`}>
         <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-3">
-            <Image src="/zekke-logo.png" alt="Zekke" width={40} height={40} priority />
-            <span className="text-display text-ink">Zekke</span>
-          </div>
-          <span className="text-caption text-ink-faint uppercase">
-            Zero-knowledge by construction
-          </span>
+          <TatuClosed className="h-36 w-36" />
+          <span className="-mt-2 text-6xl font-black leading-none tracking-tighter text-ink">zekke</span>
         </div>
         {children}
       </div>

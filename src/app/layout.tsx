@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Nunito } from "next/font/google";
 import AppProviders from "@/components/session/AppProviders";
 import StagingBanner from "@/components/shell/StagingBanner";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800", "900"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -30,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" translate="no" data-staging={isStaging ? "" : undefined}>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${nunito.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <StagingBanner />
         <AppProviders>{children}</AppProviders>

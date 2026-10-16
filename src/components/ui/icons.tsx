@@ -186,6 +186,32 @@ export function ChartIcon(props: IconProps) {
   );
 }
 
+export function SunIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" />
+    </Icon>
+  );
+}
+
+export function MoonIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+    </Icon>
+  );
+}
+
+export function MonitorIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="4" width="18" height="12" rx="2.5" />
+      <path d="M8 20h8M12 16v4" />
+    </Icon>
+  );
+}
+
 export function SettingsIcon(props: IconProps) {
   return (
     <Icon {...props}>
@@ -403,21 +429,27 @@ export function PencilIcon(props: IconProps) {
 
 export function FolderGlyph({ open = false, ...props }: IconProps & { open?: boolean }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" className="h-full w-full" {...props}>
+    <svg aria-hidden="true" viewBox="0 0 128 106" fill="none" className="h-full w-full" {...props}>
+      <ellipse cx="64" cy="102" rx="52" ry="3.5" fill="#2a1608" opacity={0.16} />
       <path
-        d="M4 11.5A3.5 3.5 0 0 1 7.5 8h11.1a3.5 3.5 0 0 1 2.6 1.2l2.4 2.8h16.9a3.5 3.5 0 0 1 3.5 3.5V38a3.5 3.5 0 0 1-3.5 3.5h-33A3.5 3.5 0 0 1 4 38V11.5Z"
+        d="M8 14a8 8 0 0 1 8-8h30l10 10h56a8 8 0 0 1 8 8v66a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8Z"
         className="fill-folder-back"
       />
-      <path d="M8 16h32v6H8z" className="fill-surface" opacity={0.85} />
+      <g className="transition-transform duration-200" transform={open ? 'translate(0 -6)' : undefined}>
+        <rect x="20" y="22" width="88" height="44" rx="6" fill="#fff4e8" transform="rotate(-2 64 44)" />
+        <rect x="24" y="16" width="80" height="48" rx="6" fill="#ffffff" transform="rotate(1.5 64 40)" />
+        <g transform="rotate(1.5 64 40)">
+          <rect x="32" y="26" width="30" height="5" rx="2.5" fill="#ff7a1a" />
+          <rect x="32" y="36" width="64" height="4" rx="2" fill="#ffb066" opacity={0.7} />
+          <rect x="32" y="45" width="48" height="4" rx="2" fill="#ffb066" opacity={0.7} />
+        </g>
+      </g>
       <path
-        d={
-          open
-            ? 'M8.6 19.5h36a2.4 2.4 0 0 1 2.3 3.1l-4.4 16A3.5 3.5 0 0 1 39.1 41.5H7.5A3.5 3.5 0 0 1 4 38V23.5a4 4 0 0 1 4.6-4Z'
-            : 'M4 21.5a3.5 3.5 0 0 1 3.5-3.5h33a3.5 3.5 0 0 1 3.5 3.5V38a3.5 3.5 0 0 1-3.5 3.5h-33A3.5 3.5 0 0 1 4 38V21.5Z'
-        }
+        d="M8 42a8 8 0 0 1 8-8h96a8 8 0 0 1 8 8v46a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8Z"
         className="fill-folder-front"
       />
-      <path d="M7.5 18h33a3.5 3.5 0 0 1 3.4 2.6" className="stroke-folder-shine" strokeWidth={1.2} strokeLinecap="round" />
+      <path d="M16 34h96a8 8 0 0 1 8 8v3H8v-3a8 8 0 0 1 8-8Z" className="fill-folder-shine" />
+      <path d="M14 49h100" stroke="#fff" strokeOpacity={0.35} strokeWidth={3} strokeLinecap="round" />
     </svg>
   );
 }
@@ -445,153 +477,174 @@ export function TrashIcon(props: IconProps) {
 
 
 
-const FILE_SHEET_COLOUR: Record<FileKind, string | undefined> = {
-  pdf: 'fill-file-pdf',
-  document: 'fill-file-document',
-  sheet: 'fill-file-sheet',
-  slides: 'fill-file-slides',
-  archive: 'fill-file-archive',
-  image: 'fill-file-image',
-  video: 'fill-file-video',
-  audio: 'fill-file-audio',
-  code: 'fill-file-code',
-  text: undefined,
-  other: undefined,
+type FileVariant = { tone: string; label: string; onTone: string };
+
+const FILE_VARIANTS: Record<FileKind, FileVariant> = {
+  pdf: { tone: 'text-file-pdf', label: 'PDF', onTone: 'fill-white' },
+  document: { tone: 'text-file-document', label: 'DOC', onTone: 'fill-white' },
+  sheet: { tone: 'text-file-sheet', label: 'XLS', onTone: 'fill-white' },
+  slides: { tone: 'text-file-slides', label: 'PPT', onTone: 'fill-white' },
+  archive: { tone: 'text-file-archive', label: 'ZIP', onTone: 'fill-ink' },
+  image: { tone: 'text-file-image', label: 'IMG', onTone: 'fill-white' },
+  video: { tone: 'text-file-video', label: 'VID', onTone: 'fill-white' },
+  audio: { tone: 'text-file-audio', label: 'AUD', onTone: 'fill-white' },
+  code: { tone: 'text-file-code', label: 'CODE', onTone: 'fill-white' },
+  text: { tone: 'text-file-text', label: 'TXT', onTone: 'fill-white' },
+  other: { tone: 'text-ink-muted', label: 'FILE', onTone: 'fill-white' },
 };
 
-const FILE_SHEET_PATH =
-  'M10 3h19l12 12v27a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z';
-const FILE_FOLD_PATH = 'M29 3v9a3 3 0 0 0 3 3h9Z';
-const FILE_LABEL_FONT_SIZE = 11;
-const FILE_LABEL_BASELINE = 37;
-const FILE_LABEL_FULL_WIDTH = 27;
-const FILE_LABEL_CONDENSED_FROM = 4;
+const CSV_VARIANT: FileVariant = { tone: 'text-file-csv', label: 'CSV', onTone: 'fill-white' };
+const FILE_LABEL_MAX = 4;
+
+const OLD_MARK_FRAME = 'translate(9.6 14.6) scale(1.6)';
 
 const FILE_MARKS: Record<FileKind, ReactNode> = {
   image: (
-    <>
-      <rect x="16" y="10.5" width="16" height="12" rx="1.6" />
-      <circle cx="20.5" cy="14.5" r="1.5" />
-      <path d="m17 20.5 4.5-4.5 3 2.8 3-3.2 3.5 4.9" />
-    </>
+    <g transform={OLD_MARK_FRAME}>
+      <g transform="translate(0 8)" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="16" y="10.5" width="16" height="12" rx="1.6" />
+        <circle cx="20.5" cy="14.5" r="1.5" />
+        <path d="m17 20.5 4.5-4.5 3 2.8 3-3.2 3.5 4.9" />
+      </g>
+    </g>
   ),
   video: (
-    <>
-      <rect x="16" y="10.5" width="16" height="12" rx="1.6" />
-      <path d="m22 14 6 2.5-6 2.5z" fill="currentColor" />
-    </>
+    <g transform={OLD_MARK_FRAME}>
+      <g transform="translate(0 8)" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="16" y="10.5" width="16" height="12" rx="1.6" />
+        <path d="m22 14 6 2.5-6 2.5z" fill="currentColor" />
+      </g>
+    </g>
   ),
   audio: (
+    <g transform={OLD_MARK_FRAME}>
+      <g transform="translate(0 8)" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 21V12l9-2v9" />
+        <circle cx="18.6" cy="21" r="2.4" />
+        <circle cx="27.6" cy="19" r="2.4" />
+      </g>
+    </g>
+  ),
+  pdf: (
     <>
-      <path d="M21 21V12l9-2v9" />
-      <circle cx="18.6" cy="21" r="2.4" />
-      <circle cx="27.6" cy="19" r="2.4" />
+      <path
+        d="M22 66C30 38 42 36 40 48S56 72 72 62"
+        stroke="currentColor"
+        strokeWidth={3.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect x="20" y="36" width="22" height="5" rx="2.5" fill="currentColor" opacity={0.35} />
     </>
   ),
-  pdf: null,
   archive: (
     <>
-      <path d="M23 10.5h2.6" />
-      <path d="M23 14h2.6" />
-      <path d="M23 17.5h2.6" />
-      <rect x="21.2" y="20" width="6.2" height="5" rx="1.4" />
+      <rect x="40" y="4" width="16" height="66" fill="currentColor" opacity={0.35} />
+      {[0, 1, 2, 3, 4, 5, 6].map((index) => (
+        <rect
+          key={index}
+          x={index % 2 === 0 ? 42 : 48}
+          y={8 + index * 8}
+          width="6"
+          height="5"
+          rx="1.5"
+          className={index % 2 === 0 ? 'fill-brand-700' : 'fill-ink'}
+        />
+      ))}
+      <rect x="40" y="58" width="16" height="18" rx="5" className="fill-brand-500 stroke-ink" strokeWidth={2.5} />
+      <circle cx="48" cy="68" r="3" className="fill-ink" />
     </>
   ),
   document: (
     <>
-      <path d="M17 12.5h14" />
-      <path d="M17 16.5h14" />
-      <path d="M17 20.5h9" />
+      <rect x="20" y="36" width="36" height="6" rx="3" fill="currentColor" />
+      <rect x="20" y="48" width="56" height="5" rx="2.5" fill="currentColor" opacity={0.35} />
+      <rect x="20" y="58" width="40" height="5" rx="2.5" fill="currentColor" opacity={0.35} />
     </>
   ),
   sheet: (
     <>
-      <rect x="16" y="10.5" width="16" height="12" rx="1.6" />
-      <path d="M16 15h16" />
-      <path d="M16 19h16" />
-      <path d="M24 10.5v12" />
+      <rect x="20" y="36" width="56" height="36" rx="5" stroke="currentColor" strokeWidth={3} />
+      <rect x="21.5" y="37.5" width="53" height="10.5" rx="3" fill="currentColor" opacity={0.35} />
+      <path d="M38.7 36V72M57.3 36V72M20 48H76M20 60H76" stroke="currentColor" strokeWidth={2.5} />
     </>
   ),
   slides: (
-    <>
-      <rect x="16" y="10" width="16" height="11" rx="1.6" />
-      <path d="M24 21v3" />
-      <path d="M20 24h8" />
-    </>
+    <g transform={OLD_MARK_FRAME}>
+      <g transform="translate(0 8)" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="16" y="10" width="16" height="11" rx="1.6" />
+        <path d="M24 21v3" />
+        <path d="M20 24h8" />
+      </g>
+    </g>
   ),
   code: (
-    <>
-      <path d="m21 11.5-5 5 5 5" />
-      <path d="m27 11.5 5 5-5 5" />
-    </>
+    <g transform={OLD_MARK_FRAME}>
+      <g transform="translate(0 8)" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <path d="m21 11.5-5 5 5 5" />
+        <path d="m27 11.5 5 5-5 5" />
+      </g>
+    </g>
   ),
   text: (
     <>
-      <path d="M17 11.5h14" />
-      <path d="M17 15h11" />
-      <path d="M17 18.5h14" />
-      <path d="M17 22h8" />
+      {[36, 45, 54, 63, 72].map((y, index) => (
+        <rect key={y} x="20" y={y} width={[56, 48, 56, 40, 24][index]} height="4" rx="2" fill="currentColor" opacity={0.55} />
+      ))}
     </>
   ),
   other: null,
 };
+
+const CSV_MARK: ReactNode = (
+  <>
+    {[38, 50, 62].map((y) => (
+      <g key={y}>
+        <rect x="20" y={y} width="11" height="6" rx="3" fill="currentColor" />
+        <text x="35" y={y + 8} fontSize="16" fontWeight={900} fill="currentColor">,</text>
+        <rect x="41" y={y} width="11" height="6" rx="3" fill="currentColor" opacity={0.6} />
+        <text x="56" y={y + 8} fontSize="16" fontWeight={900} fill="currentColor">,</text>
+        <rect x="62" y={y} width="14" height="6" rx="3" fill="currentColor" opacity={0.35} />
+      </g>
+    ))}
+  </>
+);
+
+const FILE_PAGE_PATH = 'M16 4H62L88 30V102a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8V12a8 8 0 0 1 8-8Z';
+const FILE_FOLD_PATH = 'M62 4V22a8 8 0 0 0 8 8H88Z';
+const FILE_BADGE_BASE = 12;
+const FILE_BADGE_PER_LETTER = 11;
 
 export function FileTypeIcon({
   kind,
   extension,
   ...props
 }: IconProps & { kind: FileKind; extension?: string }) {
-  const label = extension !== undefined && extension !== '' ? extension : undefined;
-  const colour = FILE_SHEET_COLOUR[kind];
-  const paper = colour === undefined;
+  const typed = extension !== undefined && extension !== '' ? extension.toLowerCase() : undefined;
+  const csv = typed === 'csv';
+  const variant = csv ? CSV_VARIANT : FILE_VARIANTS[kind];
+  const label = (typed ?? variant.label).toUpperCase().slice(0, FILE_LABEL_MAX);
+  const badgeWidth = FILE_BADGE_BASE + FILE_BADGE_PER_LETTER * label.length;
 
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 48 48"
-      fill="none"
-      className="h-full w-full"
-      {...props}
-    >
-      <path
-        d={FILE_SHEET_PATH}
-        className={paper ? 'fill-surface stroke-line-strong' : colour}
-        strokeWidth={paper ? 1.2 : undefined}
-        strokeLinejoin="round"
-      />
-      <path
-        d={FILE_FOLD_PATH}
-        className={paper ? 'fill-line stroke-line-strong' : colour}
-        strokeWidth={paper ? 1.2 : undefined}
-        strokeLinejoin="round"
-      />
-      {paper ? null : <path d={FILE_FOLD_PATH} className="fill-ink" opacity={0.28} />}
-      {label === undefined ? (
-        <g
-          transform="translate(0 8)"
-          className={paper ? 'text-ink-faint' : 'text-white'}
-          stroke="currentColor"
-          strokeWidth={1.8}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          {FILE_MARKS[kind]}
-        </g>
-      ) : (
-        <text
-          x="24"
-          y={FILE_LABEL_BASELINE}
-          textAnchor="middle"
-          className={paper ? 'fill-ink-soft' : 'fill-white'}
-          fontSize={FILE_LABEL_FONT_SIZE}
-          fontWeight={800}
-          letterSpacing={0.3}
-          textLength={label.length >= FILE_LABEL_CONDENSED_FROM ? FILE_LABEL_FULL_WIDTH : undefined}
-          lengthAdjust="spacingAndGlyphs"
-        >
-          {label}
-        </text>
-      )}
+    <svg aria-hidden="true" viewBox="0 0 96 120" fill="none" className="h-full w-full" {...props}>
+      <ellipse cx="48" cy="115" rx="36" ry="3.5" fill="#2a1608" opacity={0.14} />
+      <path d={FILE_PAGE_PATH} fill="#ffffff" stroke="#2a1608" strokeOpacity={0.14} strokeWidth={2} />
+      <g className={variant.tone}>
+        <path d={FILE_FOLD_PATH} fill="currentColor" opacity={0.3} />
+        {csv ? CSV_MARK : FILE_MARKS[kind]}
+        <rect x="2" y="80" width={badgeWidth} height="26" rx="9" fill="currentColor" />
+      </g>
+      <text
+        x={2 + badgeWidth / 2}
+        y="98.5"
+        textAnchor="middle"
+        fontSize="15"
+        fontWeight={900}
+        className={variant.onTone}
+      >
+        {label}
+      </text>
     </svg>
   );
 }

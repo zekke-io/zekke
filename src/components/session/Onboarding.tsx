@@ -466,7 +466,7 @@ function ModeStep({
                 onClick={() => setParanoid(option === 'paranoid')}
                 className={`flex-1 rounded-full px-5 py-1.5 text-compact font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${
                   mode === option
-                    ? 'bg-brand-600 text-white shadow-card'
+                    ? 'bg-brand-500 text-on-brand shadow-card'
                     : 'text-ink-muted hover:text-ink'
                 }`}
               >

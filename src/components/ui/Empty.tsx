@@ -4,7 +4,7 @@ export function Empty({ icon, children }: { icon?: ReactNode; children: ReactNod
   return (
     <div className="flex flex-col items-center gap-3 px-5 py-14 text-center">
       {icon ? (
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
+        <span className="flex h-12 w-12 items-center justify-center rounded-3xl bg-brand-100 text-brand-700">
           {icon}
         </span>
       ) : null}

@@ -20,6 +20,9 @@ import {
   readIconSize,
   readDocumentView,
   readOutlineShown,
+  readTheme,
+  nextTheme,
+  writeTheme,
   readRulersShown,
   readItemLayout,
   smallerIconSize,
@@ -332,5 +335,26 @@ describe("remembering whether the outline panel is expanded", () => {
 
     expect(readOutlineShown(storage)).toBe(true);
     expect(readOutlineShown(undefined)).toBe(true);
+  });
+});
+
+describe("theme", () => {
+  it("defaults to the system and remembers a choice", () => {
+    const storage = memoryStorage();
+    expect(readTheme(storage)).toBe("system");
+    writeTheme("dark", storage);
+    expect(readTheme(storage)).toBe("dark");
+  });
+
+  it("ignores a stored word it does not know", () => {
+    const storage = memoryStorage();
+    storage.setItem("zekke_theme", "sepia");
+    expect(readTheme(storage)).toBe("system");
+  });
+
+  it("cycles system, light, dark and back", () => {
+    expect(nextTheme("system")).toBe("light");
+    expect(nextTheme("light")).toBe("dark");
+    expect(nextTheme("dark")).toBe("system");
   });
 });

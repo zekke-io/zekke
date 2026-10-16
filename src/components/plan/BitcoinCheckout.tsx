@@ -122,7 +122,7 @@ export default function BitcoinCheckout({
             <div className="flex flex-wrap gap-2">
               <a
                 href={lightningUri(quote.ln_invoice)}
-                className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-compact font-semibold text-white shadow-card hover:bg-brand-700"
+                className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-5 py-2.5 text-compact font-extrabold text-on-brand shadow-card hover:bg-brand-700"
               >
                 {PLAN_COPY.openWallet}
               </a>
