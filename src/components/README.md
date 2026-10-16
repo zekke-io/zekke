@@ -69,7 +69,7 @@ is the *Zekke Web App* canvas, built on the brand, landing and app canvases.
 - **Status colours are the accessible pairs**: `success`, `warning`, `danger`, each with its `-bg`
   and `-line` companion.
 - **Dark mode is the same tokens redefined** in a `prefers-color-scheme: dark` block in
-  `globals.css` (`data-theme="light"` on `<html>` opts out). The ramp inverts there — `brand-50` to
+  `globals.css` (`data-theme="light"` on `<html>` opts out, `data-theme="dark"` forces it; the header button sets both). The ramp inverts there — `brand-50` to
   `brand-200` become the violet greys and `brand-700` becomes amber — so a component written against
   the tokens needs nothing. Fixed hexes are for the things that keep their colour in both modes: the
   armadillo, the file icons' pages and the folder's sheets.

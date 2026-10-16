@@ -89,7 +89,7 @@ const config = [
   // literal word naming how large a grid draws its icons, one naming whether
   // the drive, documents or spreadsheets is drawn as a grid or a list, one naming whether the
   // document editor draws pages or continuous text, and one each saying its
-  // rulers or its outline panel are hidden. All are view preferences with no
+  // rulers or its outline panel are hidden, and one naming the theme: system, light or dark. All are view preferences with no
   // bearing on secrets, and losing them on every reload is the kind of small
   // wrongness a user notices on every visit.
   {

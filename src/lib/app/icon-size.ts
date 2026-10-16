@@ -266,3 +266,37 @@ export function writeOutlineShown(
     storage?.setItem(OUTLINE_STORAGE_KEY, OUTLINE_HIDDEN);
   }
 }
+
+export const THEME_CHOICES = ["system", "light", "dark"] as const;
+
+export type ThemeChoice = (typeof THEME_CHOICES)[number];
+
+export const DEFAULT_THEME: ThemeChoice = "system";
+
+const THEME_STORAGE_KEY = "zekke_theme";
+
+function isThemeChoice(value: string | null): value is ThemeChoice {
+  return value !== null && (THEME_CHOICES as readonly string[]).includes(value);
+}
+
+export function readTheme(storage = defaultStorage()): ThemeChoice {
+  const raw = storage?.getItem(THEME_STORAGE_KEY) ?? null;
+  return isThemeChoice(raw) ? raw : DEFAULT_THEME;
+}
+
+export function writeTheme(
+  theme: ThemeChoice,
+  storage = defaultStorage(),
+): void {
+  storage?.setItem(THEME_STORAGE_KEY, theme);
+}
+
+export function nextTheme(theme: ThemeChoice): ThemeChoice {
+  return THEME_CHOICES[(THEME_CHOICES.indexOf(theme) + 1) % THEME_CHOICES.length];
+}
+
+export const THEME_LABELS: Record<ThemeChoice, string> = {
+  system: "Theme: match the system",
+  light: "Theme: light",
+  dark: "Theme: dark",
+};

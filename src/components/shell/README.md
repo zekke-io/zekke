@@ -6,6 +6,8 @@ The frame around every screen, and what sits in it.
 | --- | --- |
 | `AppShell.tsx` | Task 25 — the sidebar shell and the navigation registry, `NAV_ITEMS` |
 | `AccountMenu.tsx` | The avatar menu in the top bar: *Settings* and *Remove this browser* |
+| `LightTheme.tsx` | Renders nothing; while mounted it sets `data-theme="light"` on `<html>` and restores the previous value on leaving. The document and spreadsheet editor routes mount it, so they stay light whatever the system or the header button chose |
+| `ThemeToggle.tsx` | The button between the bell and the account menu: cycles the theme through the system setting, light and dark, remembers it in this browser (`readTheme` in `lib/app/icon-size.ts`) and sets `data-theme` on `<html>`; the system choice removes the attribute |
 | `NotificationBell.tsx` | The bell in the top bar, with the unread count. It reads the count on mount, every five minutes and when the window regains focus; opening it loads the newest page and marks what it showed as read. **A rising count re-reads `GET /users/me`**, because every notification so far is about the plan. Polling failures are silent: a missing badge is not worth an error |
 | `NewVersionNotice.tsx` | Above every screen, only when needed: asks `/build-id` when the window regains focus and every thirty minutes, and offers *Reload* when the server runs a newer deploy than this tab. A failed check shows nothing |
 | `ScreenStrip.tsx` | The full-width bar slot under the top bar, for a screen's own tabs |
