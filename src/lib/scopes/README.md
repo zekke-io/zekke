@@ -1,7 +1,7 @@
 # `lib/scopes` — what a device may hold
 
 The seven scopes of [device-keys.md § Scopes](../../../../api-general/docs/crypto/device-keys.md#scopes),
-in their canonical order: `admin,passwords,secrets,notes,documents,files,sharing,calendar,diary` (the last two exist only on accounts created after them, [ADR 00026](../../../../api-general/docs/adr/00026_adding_a_scope_to_existing_accounts.md)).
+in their canonical order: `admin,passwords,secrets,notes,documents,files,sharing,calendar,diary` (an account created before the last two opens them with the phrase, [ADR 00027](../../../../api-general/docs/adr/00027_opening_a_new_scope_on_existing_accounts.md)).
 
 | Export                                    | Use                                                                                                                                                                              |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

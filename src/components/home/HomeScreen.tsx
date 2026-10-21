@@ -3,19 +3,13 @@
 import { useZekke } from '@/components/session/ZekkeProvider';
 import { useShellNavigation } from '@/components/shell/ShellNavigation';
 import HomeStorage from './HomeStorage';
-import { Notice } from '@/components/ui';
 
 export default function HomeScreen() {
-  const { holds, fullDevice } = useZekke();
+  const { holds } = useZekke();
 
   return (
     <div className="space-y-10">
       {holds('files') ? <HomeStorage /> : null}
-      {fullDevice && !holds('calendar') ? (
-        <Notice tone="info">
-          Calendar, To-do and Diary are only on accounts created after they were added. This account was created before, so it does not have them.
-        </Notice>
-      ) : null}
       <AppIcons />
     </div>
   );

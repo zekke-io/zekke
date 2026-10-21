@@ -10,6 +10,7 @@ export interface ActionSpec {
 export const ACTIONS = {
   'chain-read': { args: ['user_address'], signer: 'root', pinProof: true },
   'device-enrol': { args: ['user_address', 'batch_digest'], signer: 'root', pinProof: true },
+  'keyring-open': { args: ['user_address', 'batch_digest'], signer: 'root', pinProof: true },
   'account-delete': { args: ['user_address'], signer: 'root', pinProof: true },
   'second-factor-begin': {
     args: ['user_address', 'blinded_element'],

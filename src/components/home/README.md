@@ -76,4 +76,4 @@ The bar is the sidebar's `StorageMeter` bar, larger: stored bytes solid, reserva
 
 ## Accounts created before Calendar, To-do and Diary
 
-A full device that does not hold the `calendar` scope belongs to an account created before those features, which no device can gain ([ADR 00026](../../../../api-general/docs/adr/00026_adding_a_scope_to_existing_accounts.md)). Home says so in one notice, in place of the three icons it does not show.
+A full device that does not hold `calendar` or `diary` shows their icons anyway: the screen behind them is the *Turn on* screen of [`components/features`](../features/README.md).

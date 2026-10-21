@@ -223,6 +223,17 @@
         "event_hash": "0d50d7edfdcf4ed9049a06e70dc288a1558b298c5204e1346f7c37ba3399ce07"
       }
     ],
+    "keyring_open_after_legacy_genesis": {
+      "note": "appended to genesis_chain (an account created before calendar and diary): the root opens the two keyrings and the genesis device, which holds admin and every keyring, gains them",
+      "event": {
+        "statement": "Cryple-Chain-v1|62a772f85e4be6226108b56c0b1cf935c2490e434adec864fe47b189f1ed517d|4|801d23aa5586862956537e38cd867ead39f232f3ea3d422b73cc5e564f767fdf|keyring-open|calendar=1,diary=1",
+        "signer": "root",
+        "signature_base64": "iKQJJdINFJ30jisgolIuV56omkgfIRrymNUPyXgZIi8UKo4ZGe+NUoIGo3AguNpFEUHSbArI8EzcJ3wL3XUnFw==",
+        "event_hash": "185f52241a66404aebc351a1c8aaa938935c5fe828ca52d63dca19ba8161eb4a"
+      },
+      "genesis_device_scopes_after": "admin,passwords,secrets,notes,documents,files,sharing,calendar,diary",
+      "generations_after": "passwords=1,secrets=1,notes=1,documents=1,files=1,sharing=1,calendar=1,diary=1"
+    },
     "share_subkeys": {
       "connection_key_hex": "22232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f4041",
       "documents": "9b6926d6284bb3b86010f31841a686e79441ad3c62968083b65f0c8253a317de",

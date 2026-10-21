@@ -7,7 +7,9 @@ import { rawKeySigner, type Signer } from '@/lib/signing';
 import { generateSharingKeys } from '@/lib/keyrings/crypto';
 import {
   buildDeviceRemoval,
+  buildEnrolmentOpeningKeyrings,
   buildGenesis,
+  buildKeyringOpening,
   buildRotation,
   buildSelfRemoval,
   type BuiltBatch,
@@ -567,5 +569,156 @@ describe('proof paths', () => {
     expect(() =>
       verifyProofPath(root.userAddress, root.signing.publicKeySpkiBase64, keys, [rotated[1]]),
     ).toThrow(InvalidChainError);
+  });
+});
+
+describe('keyring-open', () => {
+  const LEGACY_KEYRINGS = ['passwords', 'secrets', 'notes', 'documents', 'files', 'sharing'] as const;
+
+  async function legacyAccount(first: TestDevice) {
+    const root = await rootOf();
+    const rootSigner = rawKeySigner(root.signing.privateKey);
+    const sharing = generateSharingKeys();
+    const planned = [
+      { type: 'device-add' as const, fields: deviceAddFields(first.declaration) },
+      {
+        type: 'sharing-keys' as const,
+        fields: [1, bytesToBase64(sharing.x25519PublicKey), bytesToBase64(sharing.mlkemPublicKey)],
+      },
+      {
+        type: 'keyring-rotate' as const,
+        fields: [formatRotations(Object.fromEntries(LEGACY_KEYRINGS.map((scope) => [scope, 1])))],
+      },
+    ];
+    const events: ChainEvent[] = [];
+    let head = '0'.repeat(64);
+    for (const [index, event] of planned.entries()) {
+      const statement = buildStatement(root.userAddress, index + 1, head, event.type, event.fields);
+      const signed = await signStatement(statement, ROOT_SIGNER, rootSigner);
+      head = eventHash(signed.statement, signed.signer, signed.signature);
+      events.push(signed);
+    }
+    const state = ChainState.replay(root.userAddress, root.signing.publicKeySpkiBase64, stored(events));
+    return { root, rootSigner, state, events };
+  }
+
+  async function opening(state: ChainState, rootSigner: Signer, fields: string, signer = ROOT_SIGNER, signWith = rootSigner) {
+    const statement = buildStatement(state.userAddress, state.seq + 1, state.head, 'keyring-open', [fields]);
+    return signStatement(statement, signer, signWith);
+  }
+
+  it('is reproduced by the vector: the root opens the two keyrings after the legacy genesis', () => {
+    const open = dk.keyring_open_after_legacy_genesis;
+    const replayed = ChainState.replay(
+      userAddress,
+      dk.root_wrap.root_public_key,
+      [...dk.genesis_chain, open.event].map((event, index) => ({
+        statement: event.statement,
+        signer: event.signer,
+        signature: event.signature_base64,
+        seq: index + 1,
+        event_hash: event.event_hash,
+      })),
+    );
+    expect(replayed.seq).toBe(4);
+    expect(replayed.generations.get('calendar')).toBe(1);
+    expect(replayed.generations.get('diary')).toBe(1);
+    const held = replayed.devices.get(dk.genesis_device.device_id)?.scopes ?? new Set<string>();
+    expect([...held].sort()).toEqual(open.genesis_device_scopes_after.split(',').sort());
+  });
+
+  it('widens every full device, and only them', async () => {
+    const first = testDevice(LEGACY);
+    const { rootSigner, state } = await legacyAccount(first);
+    const second = testDevice(LEGACY);
+    await enrolByRoot(state, rootSigner, second);
+    const limited = testDevice(['passwords']);
+    await enrolByRoot(state, rootSigner, limited);
+    const noAdmin = testDevice(['passwords', 'secrets', 'notes', 'documents', 'files', 'sharing']);
+    await enrolByRoot(state, rootSigner, noAdmin);
+    const narrowed = testDevice(['admin', 'passwords', 'secrets']);
+    await enrolByRoot(state, rootSigner, narrowed);
+
+    expect(state.fullDeviceIds()).toEqual([first.declaration.deviceId, second.declaration.deviceId].sort());
+
+    state.applyBatch([await opening(state, rootSigner, 'calendar=1,diary=1')]);
+
+    const held = (device: TestDevice) => state.devices.get(device.declaration.deviceId)?.scopes;
+    expect(held(first)?.has('calendar') && held(first)?.has('diary')).toBe(true);
+    expect(held(second)?.has('calendar')).toBe(true);
+    for (const device of [limited, noAdmin, narrowed]) {
+      expect(held(device)?.has('calendar')).toBe(false);
+      expect(held(device)?.has('diary')).toBe(false);
+    }
+    expect(state.generations.get('calendar')).toBe(1);
+  });
+
+  it('refuses a device signer, an existing keyring, another generation and a rotation of a keyring never opened', async () => {
+    const first = testDevice(LEGACY);
+    const { rootSigner, state } = await legacyAccount(first);
+
+    const byDevice = await opening(state, first.signer, 'calendar=1', first.declaration.deviceId, first.signer);
+    expect(() => state.applyBatch([byDevice])).toThrow(/signed by the root/);
+
+    const existing = await opening(state, rootSigner, 'secrets=1');
+    expect(() => state.applyBatch([existing])).toThrow(/already has a keyring/);
+    const second = await opening(state, rootSigner, 'calendar=2');
+    expect(() => state.applyBatch([second])).toThrow(/generation 1/);
+
+    const rotate = await signStatement(
+      buildStatement(state.userAddress, state.seq + 1, state.head, 'keyring-rotate', ['calendar=1']),
+      first.declaration.deviceId,
+      first.signer,
+    );
+    expect(() => state.applyBatch([rotate])).toThrow(/keyring-open/);
+    expect(state.generations.get('calendar')).toBeUndefined();
+  });
+
+  it('builds a batch wrapping each opened generation to the root and to every widened device', async () => {
+    const first = testDevice(LEGACY);
+    const { rootSigner, state } = await legacyAccount(first);
+    const second = testDevice(LEGACY);
+    await enrolByRoot(state, rootSigner, second);
+
+    const built = await buildKeyringOpening({ state, root: rootSigner, wrapForRoot, scopes: ['calendar', 'diary'] });
+
+    expect(built.batch.events).toHaveLength(1);
+    expect(built.batch.events[0].signer).toBe(ROOT_SIGNER);
+    expect(built.created.map((generation) => [generation.scope, generation.generation])).toEqual([
+      ['calendar', 1],
+      ['diary', 1],
+    ]);
+    const recipients = (scope: string) =>
+      built.batch.wraps.filter((wrap) => wrap.scope === scope).map((wrap) => wrap.recipient).sort();
+    const expected = [ROOT_SIGNER, first.declaration.deviceId, second.declaration.deviceId].sort();
+    expect(recipients('calendar')).toEqual(expected);
+    expect(recipients('diary')).toEqual(expected);
+  });
+
+  it('refuses to build an opening of a keyring that exists', async () => {
+    const first = testDevice(LEGACY);
+    const { rootSigner, state } = await legacyAccount(first);
+    await expect(
+      buildKeyringOpening({ state, root: rootSigner, wrapForRoot, scopes: ['secrets'] }),
+    ).rejects.toThrow(/already has a keyring/);
+  });
+
+  it('opens the keyrings in an enrolment batch that links the new device', async () => {
+    const first = testDevice(LEGACY);
+    const { rootSigner, state } = await legacyAccount(first);
+    const phone = testDevice(ALL);
+
+    const built = await buildEnrolmentOpeningKeyrings({
+      state,
+      root: rootSigner,
+      wrapForRoot,
+      device: phone.declaration,
+      scopes: ['calendar', 'diary'],
+    });
+
+    expect(built.batch.events.map((event) => event.statement.split('|')[4])).toEqual(['device-add', 'keyring-open']);
+    const recipients = built.batch.wraps.filter((wrap) => wrap.scope === 'calendar').map((wrap) => wrap.recipient).sort();
+    expect(recipients).toEqual([ROOT_SIGNER, first.declaration.deviceId, phone.declaration.deviceId].sort());
+    expect(state.devices.get(first.declaration.deviceId)?.scopes.has('diary')).toBe(true);
   });
 });

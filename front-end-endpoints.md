@@ -2207,7 +2207,8 @@ event hash = hex SHA-256(statement + "|" + signer + "|" + signature)   — the n
 | `device-add`     | `device_id`, `signing_public_key` (SPKI P-256, 124 chars), `x25519` (32 bytes), `mlkem` (ML-KEM-768 encapsulation key), `scopes` (canonical order) |
 | `device-remove`  | `device_id`                                                                                                                                        |
 | `device-scopes`  | `device_id`, narrowed `scopes`                                                                                                                     |
-| `keyring-rotate` | `scope=generation,…` in canonical order, each current + 1                                                                                          |
+| `keyring-rotate` | `scope=generation,…` in canonical order, each current + 1; never creates a keyring                                                                |
+| `keyring-open`   | `scope=1,…` in canonical order, signed by `root`: scopes with no keyring yet are created, and every full device gains them                        |
 | `sharing-keys`   | `generation`, `x25519`, `mlkem`                                                                                                                    |
 
 **Canonical scope order:** `admin,passwords,secrets,notes,documents,files,sharing,calendar,diary`. The genesis rotation names the six keyrings of an account created before `calendar` and `diary`, or all eight; a device that already exists can never gain a scope, and the server refuses a device that names a keyring with no generation.
@@ -2276,6 +2277,28 @@ There is no device name on the server; name devices in the client's encrypted sp
 is a `device-add` here, with the new device's wraps for every existing generation of its scopes.
 Removing, narrowing and rotating need `admin`; a device may always remove itself (log-out).
 **`200`** → the device list, or an empty list when the caller removed itself.
+
+### `POST /keyrings/open` — 🔒
+
+Opens keyrings the account does not have yet. **Needs a full device** (`admin`) **and the root**:
+
+```json
+{
+  "challenge": "…", "timestamp": 0, "signature": "<root, action keyring-open>", "pin_proof": "<Paranoid only>",
+  "batch": {
+    "events": [{ "statement": "Cryple-Chain-v1|…|keyring-open|calendar=1,diary=1", "signer": "root", "signature": "…" }],
+    "wraps": [{ "scope": "calendar", "generation": 1, "recipient": "root" | "<device id>", "wrapped_key": "…" }]
+  }
+}
+```
+
+The batch is exactly one `keyring-open` event signed by `root`. Each named scope must have no keyring
+yet and opens at generation 1; every active device holding `admin` and every existing keyring gains
+it, and the batch wraps each opened generation to the root and to each such device, and to nobody
+else. The signed action is `keyring-open` over `user_address` and the SHA-256 of the batch's
+statements joined by `\n`. **`200`** → the device list.
+
+**Errors:** `400 INVALID_BATCH` · `404 NOT_FOUND` (any root or proof failure, uniform; also a caller without `admin`).
 
 ### `GET /devices/chain?after={seq}` — 🔒
 

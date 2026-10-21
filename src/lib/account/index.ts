@@ -37,6 +37,8 @@ import {
   buildDeviceRemoval,
   buildEnrolment,
   buildGenesis,
+  buildKeyringOpening,
+  openKeyringsWithRoot,
   currentFrom,
   openRootKeyrings,
   postOwnWraps,
@@ -61,7 +63,12 @@ import {
   zeroDevicePinKeys,
   type AccountProofKey,
 } from '@/lib/oprf';
-import { FULL_DEVICE_SCOPES, fullDeviceScopesFor, type Scope } from '@/lib/scopes';
+import {
+  FULL_DEVICE_SCOPES,
+  KEYRING_SCOPES,
+  fullDeviceScopesFor,
+  type KeyringScope,
+} from '@/lib/scopes';
 import type { KeyringEntry, SessionKeystore } from '@/lib/session';
 import { rawKeySigner, type PinProofSigner } from '@/lib/signing';
 import { deleteAccount, lookupUsername } from '@/lib/users';
@@ -170,7 +177,10 @@ export interface SignUpDraft {
   built: BuiltBatch;
 }
 
-export async function draftSignUp(mnemonic: string): Promise<SignUpDraft> {
+export async function draftSignUp(
+  mnemonic: string,
+  keyrings: readonly KeyringScope[] = KEYRING_SCOPES,
+): Promise<SignUpDraft> {
   const root = await deriveRootKeysFromMnemonic(mnemonic);
   const device = await generateDeviceKeys();
   try {
@@ -179,7 +189,8 @@ export async function draftSignUp(mnemonic: string): Promise<SignUpDraft> {
       rootPublicKey: root.signing.publicKeySpkiBase64,
       root: rawKeySigner(root.signing.privateKey),
       wrapForRoot: (kek) => wrapKekForRoot(root.wrapKey, kek),
-      device: deviceDeclaration(device, FULL_DEVICE_SCOPES),
+      device: deviceDeclaration(device, fullDeviceScopesFor(keyrings)),
+      keyrings,
     });
     return { root, device, built };
   } catch (error) {
@@ -213,7 +224,7 @@ export async function completeSignUp(
   const identity: DeviceIdentity = {
     userAddress: root.userAddress,
     rootPublicKey: root.signing.publicKeySpkiBase64,
-    scopes: FULL_DEVICE_SCOPES as Scope[],
+    scopes: fullDeviceScopesFor(built.created.map((generation) => generation.scope)),
   };
   const rootSigner = rawKeySigner(root.signing.privateKey);
 
@@ -711,6 +722,72 @@ export async function removeOtherDevices(
   });
 
   return rotated;
+}
+
+export function keyringsToOpen(generations: ReadonlyMap<KeyringScope, number>): KeyringScope[] {
+  return KEYRING_SCOPES.filter((scope) => (generations.get(scope) ?? 0) === 0);
+}
+
+export async function openNewKeyrings(
+  context: AuthedContext,
+  options: { mnemonic: string; accountPin?: string },
+): Promise<KeyringScope[]> {
+  const { session } = context;
+  let opened: KeyringScope[] = [];
+  await withAccountRoot(session.userAddress, options.mnemonic, async (root) => {
+    const state = await readVerifiedChain(
+      context,
+      { userAddress: session.userAddress, rootPublicKey: session.rootPublicKey },
+      session.deviceId,
+    );
+    const missing = keyringsToOpen(state.generations);
+    if (missing.length === 0) {
+      return;
+    }
+
+    const signer = rawKeySigner(root.signing.privateKey);
+    let proof: { key: AccountProofKey; sign: PinProofSigner } | undefined;
+    try {
+      if (context.paranoid) {
+        if (options.accountPin === undefined) {
+          throw new Error('a Paranoid account opens new features with its account PIN');
+        }
+        proof = await accountPinProof(signer, root.userAddress, options.accountPin, context);
+      }
+      const widened = new Set(state.fullDeviceIds());
+      const built = await buildKeyringOpening({
+        state,
+        root: signer,
+        wrapForRoot: (kek) => wrapKekForRoot(root.wrapKey, kek),
+        scopes: missing,
+      });
+      try {
+        await openKeyringsWithRoot(context, signer, built.batch, proof?.sign);
+      } catch (error) {
+        zeroCreated(built.created);
+        throw error;
+      }
+
+      if (widened.has(session.deviceId)) {
+        session.grantScopes(built.created.map((generation) => generation.scope));
+        session.addKeyrings(
+          built.created.map((generation) => ({
+            scope: generation.scope,
+            generation: generation.generation,
+            kek: generation.kek,
+          })),
+          Object.fromEntries(built.created.map((generation) => [generation.scope, generation.generation])),
+        );
+      } else {
+        zeroCreated(built.created);
+      }
+      opened = built.created.map((generation) => generation.scope);
+    } finally {
+      proof?.key.seed.fill(0);
+    }
+  });
+
+  return opened;
 }
 
 function zeroSharingPair(keys: BuiltBatch['created'][number]['sharingKeys']): void {

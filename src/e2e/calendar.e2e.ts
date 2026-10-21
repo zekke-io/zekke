@@ -1,6 +1,14 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { TokenStore } from '@/lib/api';
-import { completeSignUp, draftSignUp, enrolThisBrowser, readVerifiedChain, type AccountServices } from '@/lib/account';
+import {
+  completeSignUp,
+  draftSignUp,
+  enrolThisBrowser,
+  openNewKeyrings,
+  readVerifiedChain,
+  unlockWithPin,
+  type AccountServices,
+} from '@/lib/account';
 import {
   loadCalendar,
   orderAfterLast,
@@ -19,6 +27,7 @@ import { deriveRootKeysFromMnemonic, generateMnemonic } from '@/lib/keys';
 import { applyDeviceBatch, buildRotation, wrapKekForRoot } from '@/lib/keyrings';
 import { listRecordsMeta } from '@/lib/records';
 import { rewrapAfterRotation } from '@/lib/rekey';
+import { LEGACY_KEYRING_SCOPES } from '@/lib/scopes';
 import { SessionKeystore } from '@/lib/session';
 
 function services(): AccountServices {
@@ -178,3 +187,71 @@ function eventPayloadInput(data: CalendarData) {
   };
 }
 
+
+describe('162 an account created before calendar and diary', () => {
+  async function legacyAccount(paranoid: boolean) {
+    const phrase = generateMnemonic(12);
+    const first = services();
+    await completeSignUp(first, await draftSignUp(phrase, LEGACY_KEYRING_SCOPES), { pin: '482915', paranoid });
+    const second = services();
+    if (!paranoid) {
+      await enrolThisBrowser(second, { mnemonic: phrase, pin: '962730' });
+    }
+    const authed = (account: AccountServices): AuthedContext => ({ session: account.session, tokens: account.tokens, paranoid });
+    return { phrase, first, second, a: authed(first), b: authed(second) };
+  }
+
+  it('has neither scope, and the root turns them on for every full device without touching anything else', async () => {
+    const { phrase, second, a, b } = await legacyAccount(false);
+    for (const ctx of [a, b]) {
+      expect(ctx.session.holds('calendar')).toBe(false);
+      expect(ctx.session.holds('diary')).toBe(false);
+      expect(ctx.session.holds('notes')).toBe(true);
+    }
+    const generationsBefore = LEGACY_KEYRING_SCOPES.map((scope) => a.session.currentGeneration(scope));
+
+    const opened = await openNewKeyrings(a, { mnemonic: phrase });
+    expect(opened).toEqual(['calendar', 'diary']);
+    expect(a.session.holds('calendar')).toBe(true);
+    expect(a.session.holds('diary')).toBe(true);
+    expect(a.session.currentGeneration('calendar')).toBe(1);
+    expect(LEGACY_KEYRING_SCOPES.map((scope) => a.session.currentGeneration(scope))).toEqual(generationsBefore);
+
+    const event = await saveEvent(a, { title: 'Dentist', start: { date: '2026-11-03' }, end: { date: '2026-11-04' }, reminders: [] });
+    const entry = await saveEntry(a, { date: '2026-11-03', text: 'A quiet day' });
+
+    expect(b.session.holds('calendar')).toBe(false);
+    second.session.lock();
+    expect((await unlockWithPin(second, '962730')).status).toBe('unlocked');
+    expect(b.session.holds('calendar')).toBe(true);
+    expect(b.session.holds('diary')).toBe(true);
+
+    expect((await loadCalendar(b)).events.map((e) => e.id)).toEqual([event.id]);
+    expect((await loadDiary(b)).entries.map((e) => e.id)).toEqual([entry.id]);
+
+    const state = await readVerifiedChain(
+      b,
+      { userAddress: b.session.userAddress, rootPublicKey: b.session.rootPublicKey },
+      b.session.deviceId,
+    );
+    expect(state.generations.get('calendar')).toBe(1);
+    expect(state.generations.get('diary')).toBe(1);
+
+    expect(await openNewKeyrings(a, { mnemonic: phrase })).toEqual([]);
+  });
+
+  it('asks a Paranoid account for its account PIN', async () => {
+    const { phrase, a } = await legacyAccount(true);
+    await expect(openNewKeyrings(a, { mnemonic: phrase, accountPin: '000000' })).rejects.toBeDefined();
+    expect(a.session.holds('calendar')).toBe(false);
+
+    expect(await openNewKeyrings(a, { mnemonic: phrase, accountPin: '482915' })).toEqual(['calendar', 'diary']);
+    expect(a.session.holds('diary')).toBe(true);
+  });
+
+  it('refuses a phrase that belongs to another account', async () => {
+    const { a } = await legacyAccount(false);
+    await expect(openNewKeyrings(a, { mnemonic: generateMnemonic(12) })).rejects.toThrow(/different account/);
+    expect(a.session.holds('calendar')).toBe(false);
+  });
+});
