@@ -87,6 +87,7 @@ interface ZekkeValue {
   ): Promise<EnrolOutcome>;
   enterVault(): void;
   refreshAccount(): Promise<void>;
+  syncScopes(): void;
   reportError(error: unknown): string;
   lock(): void;
   removeBrowser(): Promise<void>;
@@ -389,6 +390,8 @@ export function ZekkeProvider({ children }: { children: ReactNode }) {
     setPhase('onboarding');
   }, [services]);
 
+  const syncScopes = useCallback(() => setScopes(session.scopes), [session]);
+
   const holds = useCallback((scope: Scope) => scopes.includes(scope), [scopes]);
   const fullDevice = scopes.includes('admin');
 
@@ -408,6 +411,7 @@ export function ZekkeProvider({ children }: { children: ReactNode }) {
       enrolBrowser,
       enterVault,
       refreshAccount,
+      syncScopes,
       reportError,
       lock,
       removeBrowser,
@@ -429,6 +433,7 @@ export function ZekkeProvider({ children }: { children: ReactNode }) {
       enrolBrowser,
       enterVault,
       refreshAccount,
+      syncScopes,
       reportError,
       lock,
       removeBrowser,

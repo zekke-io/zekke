@@ -9,7 +9,7 @@ import {
 } from '@/lib/device/keys';
 import type { DeviceSecrets } from '@/lib/keyrings/crypto';
 import { openSharingMaterial, zeroSharingKeys, type SharingKeyPair } from '@/lib/keyrings/crypto';
-import { isFullDevice, type KeyringScope, type Scope } from '@/lib/scopes';
+import { SCOPES, isFullDevice, type KeyringScope, type Scope } from '@/lib/scopes';
 import type { Signer } from '@/lib/signing';
 
 export const DEFAULT_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
@@ -128,6 +128,12 @@ export class SessionKeystore {
         state.current[scope] = generation;
       }
     }
+  }
+
+  grantScopes(scopes: readonly Scope[]): void {
+    const keys = this.require().keys;
+    const granted = new Set([...keys.scopes, ...scopes]);
+    keys.scopes = SCOPES.filter((scope) => granted.has(scope));
   }
 
   setRegistration(registrationId: string): void {

@@ -8,7 +8,7 @@ row.
 
 | File          | What it holds                                                                                       |
 | ------------- | --------------------------------------------------------------------------------------------------- |
-| `records.ts`  | The wire shape of a page, the five scopes, the item types                                           |
+| `records.ts`  | The wire shape of a page, the seven scopes, the item types                                          |
 | `replica.ts`  | `ScopeReplica`: the rows of one scope by type and id, each with the `seq` it arrived at, and the cursor |
 | `feed.ts`     | `Feed`: one replica per scope, `sync`, the subscribers, the poll loop                               |
 | `api.ts`      | `fetchChanges` and `feedFor(context)`, the one `Feed` of an unlocked session                        |
@@ -44,6 +44,8 @@ and pulled from zero, once.
 | Screen            | Reads                                                          | Was                                   |
 | ----------------- | -------------------------------------------------------------- | ------------------------------------- |
 | Notes             | `feedNotes` — every note, newest first                         | `GET /notes`, then one `GET` per note |
+| Calendar, To-do   | `feedCalendar` — every sealed row of the scope, newest first; the screens open them | `GET /calendar` |
+| Diary             | `feedDiary` — every sealed entry, newest first                 | `GET /diary`                          |
 | Vault             | `feedSecrets`, `feedDeletedSecrets` — split on `deleted_at`    | `GET /secrets`, `GET /secrets/deleted`|
 | Passwords         | `feedCredentials` — each credential's highest-`seq` revision, none for a deleted one | `GET /credentials` |
 | Documents         | `feedDocumentMetas(folder)` — without `latest_seq`, which the summary reads from the opened document | `GET /documents` |

@@ -55,6 +55,8 @@ const SCOPE_LABELS: Record<Scope, string> = {
   documents: 'Documents',
   files: 'Drive',
   sharing: 'Sharing',
+  calendar: 'Calendar and to-do',
+  diary: 'Diary',
 };
 
 export function scopeLabel(scope: Scope): string {

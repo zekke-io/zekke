@@ -25,8 +25,13 @@ event_hash = hex(SHA-256(statement "|" signer "|" signature))
   the first rule broken**: a wrong sequence or head, an unknown version, another account's
   address, a bad signature, a removed or non-admin signer, a device granting a scope it lacks, a
   narrowing that widens, a rotation that skips a generation, a removal of another device without
-  rotating what it lost, and a sharing rotation without its keys. It also checks that each stored
+  rotating what it lost, a rotation of a keyring that was never opened, a `keyring-open` not signed
+  by the root or naming a keyring that exists, and a sharing rotation without its keys. It also checks that each stored
   `event_hash` is the event's own hash.
+- **`keyring-open`** ([ADR 00027](../../../../api-general/docs/adr/00027_opening_a_new_scope_on_existing_accounts.md)):
+  the root creates keyrings that do not exist at generation 1 and every full device (`fullDeviceIds()`:
+  active, holds `admin` and every keyring that exists) gains them. `keyring-rotate` can no longer
+  create a keyring.
 - `applyBatch(events)` applies a batch this client is about to send, with the server's
   batch-level rules. The batch builders in `lib/keyrings` run it on every batch they build, so a
   batch the server would refuse is refused here first.

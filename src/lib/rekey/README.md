@@ -4,7 +4,7 @@
 already stored stays wrapped under the generation it was written with. This module walks those
 items and re-wraps their DEKs under the current one.
 
-**It is the only module that reaches into all five scopes that wrap DEKs**, which is why it is its
+**It is the only module that reaches into all seven scopes that wrap DEKs** (`calendar` and `diary` re-wrap through `lib/records`), which is why it is its
 own module rather than something in [`lib/keyrings`](../keyrings/README.md): those domains import
 `lib/keyrings`, so the seam has to sit above them, the way [`lib/account`](../account/README.md)
 does.

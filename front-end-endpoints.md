@@ -2207,10 +2207,11 @@ event hash = hex SHA-256(statement + "|" + signer + "|" + signature)   — the n
 | `device-add`     | `device_id`, `signing_public_key` (SPKI P-256, 124 chars), `x25519` (32 bytes), `mlkem` (ML-KEM-768 encapsulation key), `scopes` (canonical order) |
 | `device-remove`  | `device_id`                                                                                                                                        |
 | `device-scopes`  | `device_id`, narrowed `scopes`                                                                                                                     |
-| `keyring-rotate` | `scope=generation,…` in canonical order, each current + 1                                                                                          |
+| `keyring-rotate` | `scope=generation,…` in canonical order, each current + 1; never creates a keyring                                                                |
+| `keyring-open`   | `scope=1,…` in canonical order, signed by `root`: scopes with no keyring yet are created, and every full device gains them                        |
 | `sharing-keys`   | `generation`, `x25519`, `mlkem`                                                                                                                    |
 
-**Canonical scope order:** `admin,passwords,secrets,notes,documents,files,sharing`.
+**Canonical scope order:** `admin,passwords,secrets,notes,documents,files,sharing,calendar,diary`. The genesis rotation names the six keyrings of an account created before `calendar` and `diary`, or all eight; a device that already exists can never gain a scope, and the server refuses a device that names a keyring with no generation.
 
 **Batch rules:**
 
@@ -2277,6 +2278,28 @@ is a `device-add` here, with the new device's wraps for every existing generatio
 Removing, narrowing and rotating need `admin`; a device may always remove itself (log-out).
 **`200`** → the device list, or an empty list when the caller removed itself.
 
+### `POST /keyrings/open` — 🔒
+
+Opens keyrings the account does not have yet. **Needs a full device** (`admin`) **and the root**:
+
+```json
+{
+  "challenge": "…", "timestamp": 0, "signature": "<root, action keyring-open>", "pin_proof": "<Paranoid only>",
+  "batch": {
+    "events": [{ "statement": "Cryple-Chain-v1|…|keyring-open|calendar=1,diary=1", "signer": "root", "signature": "…" }],
+    "wraps": [{ "scope": "calendar", "generation": 1, "recipient": "root" | "<device id>", "wrapped_key": "…" }]
+  }
+}
+```
+
+The batch is exactly one `keyring-open` event signed by `root`. Each named scope must have no keyring
+yet and opens at generation 1; every active device holding `admin` and every existing keyring gains
+it, and the batch wraps each opened generation to the root and to each such device, and to nobody
+else. The signed action is `keyring-open` over `user_address` and the SHA-256 of the batch's
+statements joined by `\n`. **`200`** → the device list.
+
+**Errors:** `400 INVALID_BATCH` · `404 NOT_FOUND` (any root or proof failure, uniform; also a caller without `admin`).
+
 ### `GET /devices/chain?after={seq}` — 🔒
 
 The owner's own events after `seq`. Verify them from the root key; the server did, but the client is
@@ -2303,6 +2326,9 @@ of each device that signed along the way, then the announcement. **Verify it aga
 you pinned** (the fingerprint of `root_public_key`); do not trust the keys otherwise.
 
 ---
+
+---
+
 
 ---
 
@@ -2803,3 +2829,30 @@ An idle poll — `since` equal to the head — is answered from one row and touc
 `401 UNAUTHORIZED` · `404 NOT_FOUND` (this device does not hold the scope) · **`410 RESET`** — your
 cursor is older than the deletions the server keeps (30 days by default) or does not belong to this
 account's history: **drop what you hold for that scope and pull from `since=0`**.
+
+---
+
+## 28. Calendar and Diary Endpoints
+
+> **Scopes `calendar` and `diary`.** Every route in this section needs a device holding the scope
+> (`404` otherwise); deletes need a **full** device and a signed action. Both scopes exist **only on
+> accounts created after them** ([ADR 00025](../api-general/docs/adr/00025_calendar_and_diary_scopes.md),
+> [ADR 00026](../api-general/docs/adr/00026_adding_a_scope_to_existing_accounts.md)): an older account has no keyring for
+> them and every route answers `404`.
+
+Two sets of identical routes, built like notes. A row is `ciphertext`, `wrapped_dek`, `key_generation`
+and `version`; the server cannot tell an event from a task or read a date. **A payload is at most 90 000
+bytes of JSON**, which seals to under the server's cap of 131 072 base64 characters; over it is `400`.
+`PUT` replaces the content and **the last writer wins**.
+
+| Route | What it does |
+| --- | --- |
+| `POST /calendar`, `POST /diary` | Create. Send a client-generated `id` to make a retry safe: `201` created, `200` replay |
+| `PUT /calendar/{id}`, `PUT /diary/{id}` | Replace the sealed content under the current `key_generation` |
+| `GET /calendar`, `GET /diary` | Paged metadata: `id`, `wrapped_dek`, `key_generation`, `ciphertext_sha256`, `ciphertext_bytes`, timestamps |
+| `GET /calendar/{id}`, `GET /diary/{id}` | One whole record |
+| `DELETE /calendar/{id}`, `DELETE /calendar`, and the same for `/diary` | Signed `calendar-delete` or `diary-delete`; the batch signs the ids sorted and de-duplicated |
+| `PUT /calendar/keys`, `PUT /diary/keys` | Re-wrap after a rotation, signed `calendar-rekey` or `diary-rekey` by a full device |
+
+`409 STALE_KEY_GENERATION` and the change feed (`GET /changes?scope=calendar` or `diary`) work as for
+notes. Neither scope is a sharing item type: the diary is never shared.
