@@ -183,6 +183,48 @@ describe('the device_keys vectors', () => {
   });
 });
 
+describe('the all-scopes genesis vector', () => {
+  const chain = dk.genesis_chain_all_scopes;
+  const replay = () =>
+    ChainState.replay(
+      userAddress,
+      dk.root_wrap.root_public_key,
+      chain.map((event, index) => ({
+        statement: event.statement,
+        signer: event.signer,
+        signature: event.signature_base64,
+        seq: index + 1,
+        event_hash: event.event_hash,
+      })),
+    );
+
+  it('pins the scope list and the rotation of a new account', () => {
+    expect(dk.all_scopes_device.scopes).toBe(ALL.join(','));
+    expect(dk.all_scopes_device.genesis_keyring_rotation).toBe(
+      formatRotations(parseRotations(dk.all_scopes_device.genesis_keyring_rotation)),
+    );
+    expect(chain[0].statement.split('|')[9]).toBe(dk.all_scopes_device.scopes);
+    expect(chain[2].statement.split('|')[5]).toBe(dk.all_scopes_device.genesis_keyring_rotation);
+  });
+
+  it('reproduces every event hash', () => {
+    for (const event of chain) {
+      expect(eventHash(event.statement, event.signer, event.signature_base64)).toBe(
+        event.event_hash,
+      );
+    }
+  });
+
+  it('replays from the root key and gives the device both new keyrings at generation 1', () => {
+    const state = replay();
+    expect(state.seq).toBe(3);
+    expect(state.head).toBe(chain[2].event_hash);
+    expect(state.generations.get('calendar')).toBe(1);
+    expect(state.generations.get('diary')).toBe(1);
+    expect(state.activeDevicesWith('diary')).toEqual([dk.genesis_device.device_id]);
+  });
+});
+
 describe('which keyrings a genesis may rotate', () => {
   async function genesisRotating(keyrings: readonly string[]) {
     const root = await rootOf();

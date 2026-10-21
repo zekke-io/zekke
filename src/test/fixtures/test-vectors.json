@@ -198,6 +198,31 @@
         "event_hash": "801d23aa5586862956537e38cd867ead39f232f3ea3d422b73cc5e564f767fdf"
       }
     ],
+    "all_scopes_device": {
+      "genesis_keyring_rotation": "passwords=1,secrets=1,notes=1,documents=1,files=1,sharing=1,calendar=1,diary=1",
+      "note": "the same device keys as genesis_device, holding every scope; the genesis of an account created after calendar and diary",
+      "scopes": "admin,passwords,secrets,notes,documents,files,sharing,calendar,diary"
+    },
+    "genesis_chain_all_scopes": [
+      {
+        "statement": "Cryple-Chain-v1|62a772f85e4be6226108b56c0b1cf935c2490e434adec864fe47b189f1ed517d|1|0000000000000000000000000000000000000000000000000000000000000000|device-add|00000000-0000-4000-8000-000000000001|MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEt549fc+j8RGB9G8kevVsBnsO9TJQ/BjpvoLCPm+DP+6JJHBBY3qGRC9Fi3ilxDlgu6zMPrFMieWumtr095RVMA==|Z13VdO13iTELPS52gfN5C0ZsdzsVIf7PNld5WDcepS8=|b1pkxjGi+Be4MGwIUYU9ApodVKsiMkV0e7AOxKhz93hHYbqLbYssOphEh2EIT+cZWfiG2dp2eJp+mJUe+6q0dhtA+JaGlrQHKYJyqbVEsxU1D8xnFQEdYCXKaKOSpxNcLlx9U1jLwlQXgrMCTYbB2RpL3Vd5iVLKqZqD7zPFG9ABCIjExKGGubnODOBUcWh/yLaWT0Y5zjyTlpaRbYsaXHyqsOlScvC3nRKZ8jBDn2kijLeRpOGuotHBeNmeAii21RAlFZzFZdFeX6jGhporzjon90Cza2kNyrg+s6m3GSyB0lSUFFPAwCM6ftdL25gQYrJsWdvEKJyqc6VUKvEHExpuk6XLojBgnfgXA6ci2xZVaVu7/KuZr5wLyaRq2SWZ7uLHJDqQP8eznFGcdydl8tKs8WbCBcews8SiNCWfwIOVAkhWKkBLfbpmHIOkDKHM5eXIu4zLeWGW1iFuBggGDgi7VNgs60wEF7jMvHAN0uIG+3JtEVw/9AKESJgAqsliECY52/lxocoYzCjLommK43yj3qJrVGVGUSqTZEG2OsAvjDMkXfUnQqtQ+DoQuQhKixeb3FsVvIcsKElq1Pg7znlFjlIRVHOBSbl/R+xQmypTU6AfOHwcIXQwq4uf8SoCWUx6RyxXLDQkZpVQrcU9pahU8iPEXSEL+Zd/uKKHUiNWTSRGCTqJ5tQD5BE4H1xbkcI5SZRZAOENpOZDwWA2wdw69udRIBUubuEOpNyGobHMCre477i/q1yBy+pRfHy+YkpVYbJVRFmJhjVFX6XCvQe2b1Zc+gR+thQqHXXBLRU8ecg4PSQemaOFYTcvRkQFN9yByfGYcwQ2bHOSpdeFnCJ+vGwWxDAGEjm3R3h6XgqTZGqdumiv2Fhf9DgXMnlXP2OsfKDG0KkDa6IUiYNIkbAJtQhU9qkD6CgJ2wkqI9G6MJAEnsIWW2ZLhmIv2yLGGDwZ2Wid5jdEEZCdiQdjVngJ40SFezcvb1Efp8g/XhkIpONx9LJM/zqwJhkXBPR+slCiPOccPiGvb1a1m8eJ5SBz+2YLiYzC3nTJGaKwl6k263UoX3Em2+scHYub16dIV8O/BWq6yUOZc+orYqsVIhUErLlJK6eb8xU2gnGT66aHfysLY2erIFdqqKIizNA5AKeZUXSLJ3F3bAqEDIYufxwSVIawIsMIAyY5B4xN5pHI1CoMMizA3My5eBJ9x8FeF8UvqCwoWEhVITCoKpki/UOf+TIVO2dIGeqPDkF2QtdL5SRz5LE6gzluG9Ejn+JoJmCQFRUBlKUtasFRugFKFiFOcLC6NuEr5Ch+Z8eO4zxp20tsJzCiU4p0YelXIfYqY1y29TGdM+UOhJOeM8V3hcZKe1XB8CDGgZxD3ppHMisdAhrItmUH9QsUCuk+XpK0K2aPOxpAeqA9u5h26UkGMnQmoco6T8cLHzw3MQIXJ2eEUfwtNIUf7NkHsBRTeDVSkfsPJmiXqpjD1nMp58PDM8VNxKy0BjsjqADDKUVBTIoWIvPEI7qWcHiUHcxhSgdhM8cN62edjIYn7tV5neZg+hTDFlLXIk6I4bdFA4RSob8=|admin,passwords,secrets,notes,documents,files,sharing,calendar,diary",
+        "signer": "root",
+        "signature_base64": "3PC3miVKZsdjsjKl4XHXjz0P1f6+aVSOBb5sam4pOv5WQ/JR08lyTVAG+h48xhbmfBMfDfvRFCSwwF2xeSLzsg==",
+        "event_hash": "79dc1e5cd4ca19bb66d1d0107bf2ec9ca8e91b25667fe3e6ad482445e99c4696"
+      },
+      {
+        "statement": "Cryple-Chain-v1|62a772f85e4be6226108b56c0b1cf935c2490e434adec864fe47b189f1ed517d|2|79dc1e5cd4ca19bb66d1d0107bf2ec9ca8e91b25667fe3e6ad482445e99c4696|sharing-keys|1|ST6C/HRGSlkmiBdiPSBTxeuOLMSpiLT+4XnsawENUx0=|wJhviTNE1AVNVvJkbpqlV6N7H6JPrNgI1ocs6QgtNnyH2YJqxzFW7dBS6Kq1eoGTYVef2lvJ71adcDodjrYWQGgOOmA4MAZaLyBQ0/ZZ7ix7OZmrSgkiLKmPszSeeDyIjJoxdDuMEvpQgbY8vnMUZznKVAwgWMemVfdgtTFyrqKtkGyy2JsacbYVXtg6PKwze3zEOWWELZzLtbIlv8arGNuG4PmRLHNW8GMm0TEzMUY56BdEUug/iHqrbfZ+Qnk0G8wUC3Kc6cKgaMR7maHCzyegpECMxemybPc5I4qbJtaaCeq6cyNhOlCC12KW+iafmdRrIxy56paaP1HLx1ZE0iWMrXaO/GodNShY+4FwmyskhYMis1tFTudcxFbPBJdincIIr+t4zWBGV/Kx2jUE3ylusOFu5Mgo52nFrthby6GhBHLFa6Mpi+GgNVWK6wF5XZNFPiZOPmdRJidVKCKkjNZ9reWOBSJdCxPGMFV5W1AmSBZV81MtfZCIFTSmHNymqPIFbvlvdmaH1ltKYRi3LwF7stEsJpMLODmjXPyP3uuHxWh/7UtgFnUqOQej2uGaZXrDyMgM22axMRtN99EsvlEvXecwyiQNKAkqWACF1EYLouU9UdikJJAsRoWm9FNGngU5ZzFT9JpHBjJltIWGzSEG6DKRHkN4+to1mPAWc0IwD0goxoJLLDoPKvQ95LJeb6QfPsRk3YOqE0gsrsxfaisj6KUvLYZ2oriiJTFnGXxjmCkAVDozsoDOseohk+ukXFtiyzx34qGXRxHID2Sj0GFF1ochlYNGbNYAXrYt7biJlDtFhDub9Fh+97u7b/p2Q7QRTGi4ootlqQkHGWKUyCq+UYJ2WYWkyHgBtVqwEZGEUHlTy9SbbIpmgOAaOnSMzeygIfWTKulq4CKbMGUkZSGXursrHauaRrglvYFWU1IbGYKq/pp9J8HCx2k5n/wuiKE9O5Q+QumD7vpQxIAZSKEK7mRiyrUIcHemUuI9O1Q383qZ15oyOtdKJVE0Nrpaz8EQuyZOzDhVCTHOOtcPG5tVHJFxAKSpCQaMZUycsYKlRvWxWoVcYxOftygJI5cXbDR/k0mSSEJhZpWZmkszpuo6Uft0HdqpFlOCniOvblDFFlSSK6eigZR+G3Mm0rqn7ctePIA4Wvxg92Fzo6pFkOB/o1Zd2zuxtIkbKIWJ4WYLdnuV8EhsO9Ul5Osx3sqCFWphcGZJLXGLPAJpMmi8uWnDcCE6BNRngwxqDMl/FqxXPjCbnxuRQpaV+XbEqBAtY1kpMrzNFZGEG1BUKdtqNEgFL+IUSivCblCyTagLu7NYJ9NmAvAt6AGfj+Yv/otTY6cyH0U5PVqlCdKER0qnPPZspekahFclP4x0BASAEHnOrtyBnlEZe3xP9HMei6AuCKlMgPkgSeoVaRmY8FdQgZquxTWwhuoI+HGbSeZC5qMYwFZ4DLiDdLQcZcRDoBjGTFs1YaMF5eQ6AZKoZ6qhtfa2BoLA0+OazRw30bMe0KJwu4cmGuisypWqD9K5VmemEt2FwiSEjW7uIdBk/w/yE2jVm5AocrQEzshTxsNEejo=",
+        "signer": "root",
+        "signature_base64": "94MIuLrHBJWx1NdL3ubAvmhkguQ1xloFxBY+vjippKvuRxqE/m1tqWOu1ZaHCa30uOSPF7mb5LhTfr8u8gTSdA==",
+        "event_hash": "8cbbb570953c6c3d6cef74c280bc84f581cf88957f4de202f4e3931c97ff172e"
+      },
+      {
+        "statement": "Cryple-Chain-v1|62a772f85e4be6226108b56c0b1cf935c2490e434adec864fe47b189f1ed517d|3|8cbbb570953c6c3d6cef74c280bc84f581cf88957f4de202f4e3931c97ff172e|keyring-rotate|passwords=1,secrets=1,notes=1,documents=1,files=1,sharing=1,calendar=1,diary=1",
+        "signer": "root",
+        "signature_base64": "nAPY+UQIzYcxoTfOALsZ72NQdPUZq+cgpIP6MEo8Bj4QViYAub93A4qKjl+jUNH9ANKhsaxHS18GuWirjy21tQ==",
+        "event_hash": "0d50d7edfdcf4ed9049a06e70dc288a1558b298c5204e1346f7c37ba3399ce07"
+      }
+    ],
     "share_subkeys": {
       "connection_key_hex": "22232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f4041",
       "documents": "9b6926d6284bb3b86010f31841a686e79441ad3c62968083b65f0c8253a317de",
