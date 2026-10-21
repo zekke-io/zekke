@@ -2210,7 +2210,7 @@ event hash = hex SHA-256(statement + "|" + signer + "|" + signature)   — the n
 | `keyring-rotate` | `scope=generation,…` in canonical order, each current + 1                                                                                          |
 | `sharing-keys`   | `generation`, `x25519`, `mlkem`                                                                                                                    |
 
-**Canonical scope order:** `admin,passwords,secrets,notes,documents,files,sharing`.
+**Canonical scope order:** `admin,passwords,secrets,notes,documents,files,sharing,calendar,diary`. The genesis rotation names the six keyrings of an account created before `calendar` and `diary`, or all eight; a device that already exists can never gain a scope, and the server refuses a device that names a keyring with no generation.
 
 **Batch rules:**
 
@@ -2303,6 +2303,9 @@ of each device that signed along the way, then the announcement. **Verify it aga
 you pinned** (the fingerprint of `root_public_key`); do not trust the keys otherwise.
 
 ---
+
+---
+
 
 ---
 
@@ -2803,3 +2806,31 @@ An idle poll — `since` equal to the head — is answered from one row and touc
 `401 UNAUTHORIZED` · `404 NOT_FOUND` (this device does not hold the scope) · **`410 RESET`** — your
 cursor is older than the deletions the server keeps (30 days by default) or does not belong to this
 account's history: **drop what you hold for that scope and pull from `since=0`**.
+
+---
+
+## 28. Calendar and Diary Endpoints
+
+> **Scopes `calendar` and `diary`.** Every route in this section needs a device holding the scope
+> (`404` otherwise); deletes need a **full** device and a signed action. Both scopes exist **only on
+> accounts created after them** ([ADR 00025](../api-general/docs/adr/00025_calendar_and_diary_scopes.md),
+> [ADR 00026](../api-general/docs/adr/00026_adding_a_scope_to_existing_accounts.md)): an older account has no keyring for
+> them and every route answers `404`.
+
+Two sets of identical routes, built like notes. A row is `ciphertext`, `wrapped_dek`, `key_generation`
+and `version`; the server cannot tell an event from a task or read a date. **A payload is at most 90 000
+bytes of JSON**, which seals to under the server's cap of 131 072 base64 characters; over it is `400`.
+`PUT` replaces the content and **the last writer wins**.
+
+| Route | What it does |
+| --- | --- |
+| `POST /calendar`, `POST /diary` | Create. Send a client-generated `id` to make a retry safe: `201` created, `200` replay |
+| `PUT /calendar/{id}`, `PUT /diary/{id}` | Replace the sealed content under the current `key_generation` |
+| `GET /calendar`, `GET /diary` | Paged metadata: `id`, `wrapped_dek`, `key_generation`, `ciphertext_sha256`, `ciphertext_bytes`, timestamps |
+| `GET /calendar/{id}`, `GET /diary/{id}` | One whole record |
+| `DELETE /calendar/{id}`, `DELETE /calendar`, and the same for `/diary` | Signed `calendar-delete` or `diary-delete`; the batch signs the ids sorted and de-duplicated |
+| `PUT /calendar/keys`, `PUT /diary/keys` | Re-wrap after a rotation, signed `calendar-rekey` or `diary-rekey` by a full device |
+| `GET /calendar/folders`, `PUT /calendar/folders` | The task lists, as one sealed manifest, like the vault's tabs |
+
+`409 STALE_KEY_GENERATION` and the change feed (`GET /changes?scope=calendar` or `diary`) work as for
+notes. Neither scope is a sharing item type: the diary is never shared.
