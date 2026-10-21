@@ -13,6 +13,13 @@ export interface ScheduledReminder {
   fireAtMs: number;
 }
 
+export const REMINDER_TITLE = 'Zekke';
+
+export const REMINDER_TEXT: Record<ReminderKind, string> = {
+  event: 'You have an event',
+  task: 'A task is due',
+};
+
 const MS_PER_MINUTE = 60_000;
 const MS_PER_DAY = 86_400_000;
 

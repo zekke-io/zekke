@@ -6,3 +6,7 @@ export * from './events';
 export * from './tasks';
 export * from './reminders';
 export * from './ics';
+export * from './view';
+export * from './form';
+export * from './todo';
+export * from './store';

@@ -15,7 +15,7 @@ and the screens are Task 162's later steps and will sit beside this module.
 | `time.ts` | All-day and timed moments, IANA zones, instants, weekdays, date arithmetic |
 | `recurrence.ts` | The supported rule subset, its validation and `occurrenceDates` |
 | `events.ts` | `eventPayload` and `parseEvent`, validation, per-occurrence overrides, `expandEvents` |
-| `tasks.ts` | `taskPayload` and `parseTask`, and the lists manifest |
+| `tasks.ts` | `taskPayload` and `parseTask`, and `listPayload` and `parseList` for to-do lists |
 | `reminders.ts` | `planReminders`: what the device should schedule, with no content |
 | `ics.ts` | `exportIcs` and `importIcs`, with the report of what was left behind |
 
@@ -33,7 +33,7 @@ event   { version: 1, type: 'event', title, notes, location,
 task    { version: 1, type: 'task', title, notes, order, reminders,
           list?, due?, doneAt? }
 
-lists   { version: 1, lists: [ { id, name, order } ] }      one sealed manifest
+list    { version: 1, type: 'list', name, order }
 ```
 
 **A payload is at most 90 000 bytes of UTF-8 JSON** (`requirePayloadFits`, checked on every write), which seals to under 131 072 base64 characters, the server's cap; notes are at most 10 000 characters, a title 300 and a place 500, and an event keeps at most 200 changed occurrences. Every writer validates and every reader checks every value, so a record a peer wrote badly is skipped

@@ -3,9 +3,8 @@ import { isOrderKey } from './order';
 import { parseMoment, type MomentSpec } from './time';
 
 export const TASK_PAYLOAD_VERSION = 1;
-export const LISTS_MANIFEST_VERSION = 1;
+export const LIST_PAYLOAD_VERSION = 1;
 export const MAX_LIST_NAME_CHARACTERS = 100;
-export const MAX_LISTS = 100;
 
 export interface TaskList {
   id: string;
@@ -94,29 +93,27 @@ export function parseTask(id: string, value: unknown): Task | undefined {
   };
 }
 
-export function listsManifest(lists: readonly TaskList[]): Record<string, unknown> {
-  const manifest = {
-    version: LISTS_MANIFEST_VERSION,
-    lists: lists.slice(0, MAX_LISTS).map((list) => ({ id: list.id, name: list.name.slice(0, MAX_LIST_NAME_CHARACTERS), order: list.order })),
+export function listPayload(input: { name: string; order: string }): Record<string, unknown> {
+  if (!isOrderKey(input.order)) {
+    throw new RangeError('The order must be a valid order key');
+  }
+  const payload = {
+    version: LIST_PAYLOAD_VERSION,
+    type: 'list',
+    name: input.name.slice(0, MAX_LIST_NAME_CHARACTERS),
+    order: input.order,
   };
-  requirePayloadFits(manifest);
-  return manifest;
+  requirePayloadFits(payload);
+  return payload;
 }
 
-export function parseListsManifest(value: unknown): TaskList[] {
+export function parseList(id: string, value: unknown): TaskList | undefined {
   if (typeof value !== 'object' || value === null) {
-    return [];
+    return undefined;
   }
   const record = value as Record<string, unknown>;
-  if (record.version !== LISTS_MANIFEST_VERSION || !Array.isArray(record.lists)) {
-    return [];
+  if (record.version !== LIST_PAYLOAD_VERSION || record.type !== 'list' || !isOrderKey(record.order)) {
+    return undefined;
   }
-  const lists: TaskList[] = [];
-  for (const entry of record.lists.slice(0, MAX_LISTS)) {
-    const candidate = entry as Record<string, unknown> | null;
-    if (candidate !== null && typeof candidate === 'object' && typeof candidate.id === 'string' && isOrderKey(candidate.order)) {
-      lists.push({ id: candidate.id, name: text(candidate.name, MAX_LIST_NAME_CHARACTERS), order: candidate.order });
-    }
-  }
-  return lists;
+  return { id, name: text(record.name, MAX_LIST_NAME_CHARACTERS), order: record.order };
 }

@@ -10,6 +10,7 @@ import {
 } from "@/lib/encoding";
 import {
   KEYRING_SCOPES,
+  isGenesisRotation,
   formatScopeList,
   isKeyringScope,
   keyringScopesOf,
@@ -573,7 +574,7 @@ export class ChainState {
 
     const rotations = parseRotations(fields[0]);
     const scopes = Object.keys(rotations) as KeyringScope[];
-    if (this.seq === 2 && scopes.length !== KEYRING_SCOPES.length) {
+    if (this.seq === 2 && !isGenesisRotation(scopes)) {
       throw invalid("the genesis rotation sets every keyring scope");
     }
     for (const scope of scopes) {

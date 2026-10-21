@@ -15,6 +15,10 @@ import {
 import { useZekke } from '@/components/session/ZekkeProvider';
 import { useFeedPolling } from '@/components/session/useFeed';
 import NotesScreen from '@/components/notes/NotesScreen';
+import CalendarScreen from '@/components/calendar/CalendarScreen';
+import TodoScreen from '@/components/calendar/TodoScreen';
+import DiaryScreen from '@/components/diary/DiaryScreen';
+import { useReminderScheduler } from '@/components/calendar/useReminders';
 import PasswordsScreen from '@/components/passwords/PasswordsScreen';
 import AccountMenu from './AccountMenu';
 import ThemeToggle from './ThemeToggle';
@@ -28,6 +32,9 @@ import VaultScreen from '@/components/vault/VaultScreen';
 import { VaultRevealAction, VaultRevealProvider } from '@/components/vault/VaultReveal';
 import HomeScreen from '@/components/home/HomeScreen';
 import {
+  CalendarFeatureIcon,
+  DiaryFeatureIcon,
+  TodoFeatureIcon,
   DocumentsFeatureIcon,
   DriveFeatureIcon,
   NotesFeatureIcon,
@@ -37,6 +44,9 @@ import {
   SpreadsheetsFeatureIcon,
 } from '@/components/home/FeatureIcons';
 import {
+  CalendarIcon,
+  DiaryIcon,
+  TaskListIcon,
   DocumentFileIcon,
   DriveIcon,
   HomeIcon,
@@ -155,6 +165,33 @@ const NAV_ITEMS = [
     miniatures: true,
   },
   {
+    id: 'calendar',
+    scope: 'calendar',
+    label: 'Calendar',
+    description: 'Events and reminders, locked in this browser.',
+    icon: CalendarIcon,
+    appIcon: CalendarFeatureIcon,
+    screen: CalendarScreen,
+  },
+  {
+    id: 'todo',
+    scope: 'calendar',
+    label: 'To-do',
+    description: 'Tasks and lists, encrypted before they leave this device.',
+    icon: TaskListIcon,
+    appIcon: TodoFeatureIcon,
+    screen: TodoScreen,
+  },
+  {
+    id: 'diary',
+    scope: 'diary',
+    label: 'Diary',
+    description: 'Only you can read it, and only on a device you added.',
+    icon: DiaryIcon,
+    appIcon: DiaryFeatureIcon,
+    screen: DiaryScreen,
+  },
+  {
     id: 'shared',
     label: 'Shared',
     description: 'What other accounts have sent you, decrypted on this device.',
@@ -182,6 +219,7 @@ const EXIT_ICONS: Record<SessionExitId, ComponentType<IconProps>> = {
 export default function AppShell() {
   const { account, lock, removeBrowser, holds, chainProblem, notice, dismissNotice, reportError } = useZekke();
   useFeedPolling();
+  useReminderScheduler(holds('calendar'));
   const navItems: readonly NavItem[] = NAV_ITEMS.filter(
     (item: NavItem) => item.scope === undefined || holds(item.scope),
   );

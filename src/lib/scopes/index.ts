@@ -6,11 +6,24 @@ export const SCOPES = [
   'documents',
   'files',
   'sharing',
+  'calendar',
+  'diary',
 ] as const;
 
 export type Scope = (typeof SCOPES)[number];
 
 export const KEYRING_SCOPES = [
+  'passwords',
+  'secrets',
+  'notes',
+  'documents',
+  'files',
+  'sharing',
+  'calendar',
+  'diary',
+] as const satisfies readonly Scope[];
+
+export const LEGACY_KEYRING_SCOPES = [
   'passwords',
   'secrets',
   'notes',
@@ -28,11 +41,25 @@ export type ItemScope = (typeof ITEM_SCOPES)[number];
 export const DEK_SCOPES = [
   ...ITEM_SCOPES,
   'passwords',
+  'calendar',
+  'diary',
 ] as const satisfies readonly KeyringScope[];
 
 export type DekScope = (typeof DEK_SCOPES)[number];
 
 export const FULL_DEVICE_SCOPES: readonly Scope[] = SCOPES;
+
+export function fullDeviceScopesFor(keyrings: Iterable<string>): Scope[] {
+  const existing = new Set(keyrings);
+  return ['admin', ...KEYRING_SCOPES.filter((scope) => existing.has(scope))];
+}
+
+export function isGenesisRotation(scopes: Iterable<string>): boolean {
+  const named = new Set(scopes);
+  return [KEYRING_SCOPES, LEGACY_KEYRING_SCOPES].some(
+    (expected) => expected.length === named.size && expected.every((scope) => named.has(scope)),
+  );
+}
 
 export const CANONICAL_SCOPE_LIST = SCOPES.join(',');
 

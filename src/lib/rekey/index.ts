@@ -15,6 +15,7 @@ import {
 } from '@/lib/folders';
 import { scopeDekWrapper } from '@/lib/keyrings';
 import { listNotesMeta } from '@/lib/notes';
+import { listRecordsMeta } from '@/lib/records';
 import { getTrashKeys } from '@/lib/trash';
 import { listDeletedSecrets, listSecretsMeta } from '@/lib/secrets';
 import { zeroBytes } from '@/lib/encoding';
@@ -71,6 +72,18 @@ const ROUTES = {
     action: 'note-rekey',
     idField: 'id',
     list: (context) => listNotesMeta(context),
+  },
+  calendar: {
+    path: '/calendar/keys',
+    action: 'calendar-rekey',
+    idField: 'id',
+    list: (context) => listRecordsMeta(context, 'calendar'),
+  },
+  diary: {
+    path: '/diary/keys',
+    action: 'diary-rekey',
+    idField: 'id',
+    list: (context) => listRecordsMeta(context, 'diary'),
   },
   documents: {
     path: '/documents/keys',

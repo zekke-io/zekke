@@ -2830,7 +2830,6 @@ bytes of JSON**, which seals to under the server's cap of 131 072 base64 charact
 | `GET /calendar/{id}`, `GET /diary/{id}` | One whole record |
 | `DELETE /calendar/{id}`, `DELETE /calendar`, and the same for `/diary` | Signed `calendar-delete` or `diary-delete`; the batch signs the ids sorted and de-duplicated |
 | `PUT /calendar/keys`, `PUT /diary/keys` | Re-wrap after a rotation, signed `calendar-rekey` or `diary-rekey` by a full device |
-| `GET /calendar/folders`, `PUT /calendar/folders` | The task lists, as one sealed manifest, like the vault's tabs |
 
 `409 STALE_KEY_GENERATION` and the change feed (`GET /changes?scope=calendar` or `diary`) work as for
 notes. Neither scope is a sharing item type: the diary is never shared.

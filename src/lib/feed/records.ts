@@ -1,4 +1,4 @@
-export const FEED_SCOPES = ['passwords', 'secrets', 'notes', 'documents', 'files'] as const;
+export const FEED_SCOPES = ['passwords', 'secrets', 'notes', 'documents', 'files', 'calendar', 'diary'] as const;
 
 export type FeedScope = (typeof FEED_SCOPES)[number];
 
@@ -6,6 +6,8 @@ export type ItemType =
   | 'credential'
   | 'secret'
   | 'note'
+  | 'calendar_item'
+  | 'diary_entry'
   | 'folder_manifest'
   | 'document'
   | 'document_folder'

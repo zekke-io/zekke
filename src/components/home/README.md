@@ -72,3 +72,8 @@ The bar is the sidebar's `StorageMeter` bar, larger: stored bytes solid, reserva
   store, so the sidebar meter moves with it. The count shows `…` until it arrives.
 - **A deployment without the drive shows no summary**, as the sidebar shows no meter: the drive
   being switched off is not an error to report on Home.
+
+
+## Accounts created before Calendar, To-do and Diary
+
+A full device that does not hold the `calendar` scope belongs to an account created before those features, which no device can gain ([ADR 00026](../../../../api-general/docs/adr/00026_adding_a_scope_to_existing_accounts.md)). Home says so in one notice, in place of the three icons it does not show.

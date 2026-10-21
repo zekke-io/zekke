@@ -4,6 +4,7 @@ import type { DocumentMetaRecord } from '@/lib/documents/records';
 import type { FileRecord } from '@/lib/files/records';
 import type { TreeFolderRecord } from '@/lib/folders/tree';
 import type { NoteRecord } from '@/lib/notes';
+import type { SealedRecord } from '@/lib/records';
 import type { DeletedSecretRecord, SecretRecord } from '@/lib/secrets';
 import { feedFor } from './api';
 import type { ScopeReplica } from './replica';
@@ -42,6 +43,14 @@ function strip<T>(row: T & Deletable): T {
 
 export function notesOf(replica: ScopeReplica): NoteRecord[] {
   return replica.items<NoteRecord>('note').sort(byNewest);
+}
+
+export function calendarRecordsOf(replica: ScopeReplica): SealedRecord[] {
+  return replica.items<SealedRecord>('calendar_item').sort(byNewest);
+}
+
+export function diaryRecordsOf(replica: ScopeReplica): SealedRecord[] {
+  return replica.items<SealedRecord>('diary_entry').sort(byNewest);
 }
 
 export function secretsOf(replica: ScopeReplica): SecretRecord[] {
@@ -112,6 +121,18 @@ export async function feedNotes(context: AuthedContext): Promise<NoteRecord[]> {
   const feed = feedFor(context);
   await feed.sync('notes', { notify: false });
   return notesOf(feed.replica('notes'));
+}
+
+export async function feedCalendar(context: AuthedContext): Promise<SealedRecord[]> {
+  const feed = feedFor(context);
+  await feed.sync('calendar', { notify: false });
+  return calendarRecordsOf(feed.replica('calendar'));
+}
+
+export async function feedDiary(context: AuthedContext): Promise<SealedRecord[]> {
+  const feed = feedFor(context);
+  await feed.sync('diary', { notify: false });
+  return diaryRecordsOf(feed.replica('diary'));
 }
 
 export async function feedSecrets(context: AuthedContext): Promise<SecretRecord[]> {

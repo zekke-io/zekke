@@ -400,6 +400,28 @@ export function TaskListIcon(props: IconProps) {
   );
 }
 
+export function CalendarIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+      <path d="M3.5 10h17" />
+      <path d="M8 3.5v3" />
+      <path d="M16 3.5v3" />
+      <path d="M8 14h.01M12 14h.01M16 14h.01M8 17.2h.01M12 17.2h.01" strokeWidth={2.4} />
+    </Icon>
+  );
+}
+
+export function DiaryIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 3.5h11a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 6 3.5Z" />
+      <path d="M4.5 8H2.5M4.5 12H2.5M4.5 16H2.5" />
+      <path d="M9 8.5h6M9 12h6" />
+    </Icon>
+  );
+}
+
 export function FolderIcon(props: IconProps) {
   return (
     <Icon {...props}>

@@ -61,7 +61,7 @@ import {
   zeroDevicePinKeys,
   type AccountProofKey,
 } from '@/lib/oprf';
-import { FULL_DEVICE_SCOPES, type Scope } from '@/lib/scopes';
+import { FULL_DEVICE_SCOPES, fullDeviceScopesFor, type Scope } from '@/lib/scopes';
 import type { KeyringEntry, SessionKeystore } from '@/lib/session';
 import { rawKeySigner, type PinProofSigner } from '@/lib/signing';
 import { deleteAccount, lookupUsername } from '@/lib/users';
@@ -559,16 +559,17 @@ export async function enrolThisBrowser(
       options.removeDeviceIds === 'all' ? active : (options.removeDeviceIds ?? []);
 
     device = await generateDeviceKeys();
+    const enrolledScopes = fullDeviceScopesFor(state.generations.keys());
     const identity: DeviceIdentity = {
       userAddress: root.userAddress,
       rootPublicKey,
-      scopes: FULL_DEVICE_SCOPES as Scope[],
+      scopes: enrolledScopes,
     };
     const built = await buildEnrolment({
       state,
       root: signer,
       wrapForRoot: (kek) => wrapKekForRoot(root.wrapKey, kek),
-      device: deviceDeclaration(device, FULL_DEVICE_SCOPES),
+      device: deviceDeclaration(device, enrolledScopes),
       removeDeviceIds,
     });
     zeroCreated(built.created);

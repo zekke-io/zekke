@@ -6,14 +6,16 @@ import {
   exportIcs,
   importIcs,
   instantOf,
-  listsManifest,
+  listPayload,
   occurrenceDates,
   orderBetween,
   parseEvent,
-  parseListsManifest,
+  parseList,
   parseRecurrence,
   parseTask,
   planReminders,
+  REMINDER_TEXT,
+  REMINDER_TITLE,
   taskPayload,
   weekdayOf,
   type CalendarEvent,
@@ -253,9 +255,8 @@ describe('payload size', () => {
     expect(sealedBase64Characters).toBeLessThanOrEqual(131_072);
   });
 
-  it('covers tasks and the lists manifest', () => {
+  it('covers tasks', () => {
     expect(() => taskPayload({ title: 't', order: 'V', notes: '𝒳'.repeat(10_000) })).not.toThrow();
-    expect(() => listsManifest(Array.from({ length: 100 }, (_, i) => ({ id: `list${String(i).padStart(6, '0')}`, name: '𝒳'.repeat(100), order: 'V' })))).not.toThrow();
   });
 });
 
@@ -274,12 +275,13 @@ describe('task payloads and lists', () => {
     expect(parseTask('abcdefghij', { version: 1, type: 'task', order: '' })).toBeUndefined();
   });
 
-  it('round-trips the lists manifest and drops bad entries', () => {
-    const manifest = JSON.parse(JSON.stringify(listsManifest([{ id: 'listaaaaaa', name: 'Home', order: 'V' }, { id: 'listbbbbbb', name: 'Work', order: 'k' }])));
-    expect(parseListsManifest(manifest).map((list) => list.name)).toEqual(['Home', 'Work']);
-    expect(parseListsManifest({ version: 1, lists: [{ id: 'x', name: 'no order' }, null, 3] })).toEqual([]);
-    expect(parseListsManifest({ version: 9, lists: [] })).toEqual([]);
-    expect(parseListsManifest(undefined)).toEqual([]);
+  it('round-trips a list payload and refuses a bad one', () => {
+    const list = parseList('listaaaaaa', JSON.parse(JSON.stringify(listPayload({ name: 'Home', order: 'V' }))));
+    expect(list).toEqual({ id: 'listaaaaaa', name: 'Home', order: 'V' });
+    expect(() => listPayload({ name: 'x', order: '' })).toThrow(RangeError);
+    expect(parseList('listaaaaaa', { version: 1, type: 'list', name: 'no order' })).toBeUndefined();
+    expect(parseList('listaaaaaa', { version: 9, type: 'list', name: 'x', order: 'V' })).toBeUndefined();
+    expect(parseList('listaaaaaa', undefined)).toBeUndefined();
   });
 });
 
@@ -304,6 +306,11 @@ describe('reminders', () => {
     expect(JSON.stringify(plan)).not.toContain('Secret');
     expect(JSON.stringify(plan)).not.toContain('Pay rent');
     expect(plan[0].key).toContain(event.id);
+  });
+
+  it('words every notification without naming anything', () => {
+    expect(REMINDER_TEXT).toEqual({ event: 'You have an event', task: 'A task is due' });
+    expect(REMINDER_TITLE).toBe('Zekke');
   });
 
   it('skips the past, the far future and respects the limit', () => {

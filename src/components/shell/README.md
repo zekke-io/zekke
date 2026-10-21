@@ -33,7 +33,7 @@ on the page under the top bar, not in the drawer: they belong to the screen, not
 Navigation is one registry, `NAV_ITEMS` in `AppShell.tsx`. Each entry is
 `{ id, label, description, icon, appIcon?, screen, actions? }`; adding a section means adding one entry and
 its screen component — the sidebar, the mobile nav and the top-bar heading all render from the
-same array. Notes was added exactly that way, as one entry, and so was **Trash**, the last entry,
+same array. **Calendar** and **To-do** are two entries over one scope (`calendar`) and **Diary** a third over its own (`diary`); a device that does not hold the scope does not see the entry, and `AppShell` runs `useReminderScheduler` for the calendar while a tab is open ([`components/calendar`](../calendar/README.md)). Notes was added exactly that way, as one entry, and so was **Trash**, the last entry,
 which has no `scope` because it serves two; Guardians was **removed** exactly that
 way on 2026-09-04, by deleting one. `actions` is the optional slot for a component rendered in the
 top bar beside Lock and the account menu, for controls that belong to the whole screen rather than to one

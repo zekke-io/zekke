@@ -66,7 +66,8 @@ function testDevice(scopes: readonly Scope[]): TestDevice {
   };
 }
 
-const ALL: Scope[] = ['admin', 'passwords', 'secrets', 'notes', 'documents', 'files', 'sharing'];
+const LEGACY: Scope[] = ['admin', 'passwords', 'secrets', 'notes', 'documents', 'files', 'sharing'];
+const ALL: Scope[] = [...LEGACY, 'calendar', 'diary'];
 const wrapForRoot = async () => 'AQ'.padEnd(64, 'A');
 
 async function genesisWith(first: TestDevice) {
@@ -96,7 +97,7 @@ async function enrolByRoot(state: ChainState, rootSigner: Signer, device: TestDe
 
 describe('the device_keys vectors', () => {
   it('pins the canonical scope list', () => {
-    expect(dk.canonical_scopes).toBe(ALL.join(','));
+    expect(dk.canonical_scopes).toBe(LEGACY.join(','));
   });
 
   it('reproduces every genesis statement from its fields', async () => {
@@ -182,6 +183,50 @@ describe('the device_keys vectors', () => {
   });
 });
 
+describe('which keyrings a genesis may rotate', () => {
+  async function genesisRotating(keyrings: readonly string[]) {
+    const root = await rootOf();
+    const rootSigner = rawKeySigner(root.signing.privateKey);
+    const device = testDevice(ALL);
+    const sharing = generateSharingKeys();
+    const add = await signStatement(
+      buildStatement(root.userAddress, 1, '0'.repeat(64), 'device-add', deviceAddFields(device.declaration)),
+      ROOT_SIGNER,
+      rootSigner,
+    );
+    const keys = await signStatement(
+      buildStatement(root.userAddress, 2, eventHash(add.statement, add.signer, add.signature), 'sharing-keys', [
+        1,
+        bytesToBase64(sharing.x25519PublicKey),
+        bytesToBase64(sharing.mlkemPublicKey),
+      ]),
+      ROOT_SIGNER,
+      rootSigner,
+    );
+    const rotate = await signStatement(
+      buildStatement(root.userAddress, 3, eventHash(keys.statement, keys.signer, keys.signature), 'keyring-rotate', [
+        keyrings.map((scope) => `${scope}=1`).join(','),
+      ]),
+      ROOT_SIGNER,
+      rootSigner,
+    );
+    return () => ChainState.replay(root.userAddress, root.signing.publicKeySpkiBase64, stored([add, keys, rotate]));
+  }
+
+  const legacy = ['passwords', 'secrets', 'notes', 'documents', 'files', 'sharing'];
+
+  it('accepts the six an older account has and all eight', async () => {
+    expect((await genesisRotating(legacy))().seq).toBe(3);
+    expect((await genesisRotating([...legacy, 'calendar', 'diary']))().seq).toBe(3);
+  });
+
+  it('refuses any other set', async () => {
+    for (const keyrings of [legacy.slice(0, 2), [...legacy, 'calendar'], [...legacy, 'diary']]) {
+      expect((await genesisRotating(keyrings))).toThrow(/genesis rotation/);
+    }
+  });
+});
+
 describe('a genesis built by this client', () => {
   it('verifies as a batch and replays from the root key', async () => {
     const first = testDevice(ALL);
@@ -195,13 +240,15 @@ describe('a genesis built by this client', () => {
       'documents',
       'files',
       'sharing',
+      'calendar',
+      'diary',
     ]);
   });
 
   it('wraps every generation to the root and to the device, and seals the sharing material', async () => {
     const first = testDevice(ALL);
     const { built } = await genesisWith(first);
-    expect(built.batch.wraps).toHaveLength(12);
+    expect(built.batch.wraps).toHaveLength(16);
     for (const wrap of built.batch.wraps) {
       expect([ROOT_SIGNER, first.declaration.deviceId]).toContain(wrap.recipient);
     }
@@ -364,6 +411,8 @@ describe('the batches this client builds pass its own verifier', () => {
       'documents',
       'files',
       'sharing',
+      'calendar',
+      'diary',
     ]);
     const notesRecipients = built.batch.wraps
       .filter((wrap) => wrap.scope === 'notes')
