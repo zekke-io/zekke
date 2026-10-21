@@ -13,6 +13,7 @@ the session keystore, the token store and the device record store.
 | `forgetThisBrowser` | The same on a best-effort basis, for a browser that has lost its registration: the signing key still signs, so it leaves the device list before forgetting |
 | `changeDevicePin` | A new registration from the open session; the commit replaces the old one |
 | `removeOtherDevices` | Needs the phrase for the root wrap key (see `lib/keyrings`). Builds the removal with the rotation of everything the device held, and adds the new KEKs to the session |
+| `openNewKeyrings` | Needs the phrase (and the account PIN on Paranoid). Reads the verified chain, opens every keyring that has none (`keyringsToOpen`) with one root-signed `keyring-open` posted to `POST /keyrings/open`, and gives the new KEKs and scopes to this session if it is a full device. Returns the scopes opened, or none when another device already did |
 | `deleteAccountWithPhrase` | Root-signed `account-delete`, with the account PIN proof on Paranoid, then forgets everything local |
 
 ## How each PIN failure reads

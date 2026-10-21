@@ -69,6 +69,55 @@ export function NotesFeatureIcon() {
   );
 }
 
+export function CalendarFeatureIcon() {
+  return (
+    <FeatureArt>
+      {(fill) => (
+        <>
+          <rect x="9" y="12" width="46" height="42" rx="8" fill={fill} />
+          <path d="M9 26h46" stroke={WHITE} strokeWidth={2.5} />
+          <path d="M22 8v10M42 8v10" stroke={fill} strokeWidth={4} strokeLinecap="round" />
+          <circle cx="22" cy="36" r="3" fill={WHITE} />
+          <circle cx="32" cy="36" r="3" fill={WHITE} />
+          <circle cx="42" cy="36" r="3" fill={WHITE} />
+          <circle cx="22" cy="46" r="3" fill={WHITE} />
+          <circle cx="32" cy="46" r="3" fill={WHITE} />
+        </>
+      )}
+    </FeatureArt>
+  );
+}
+
+export function TodoFeatureIcon() {
+  return (
+    <FeatureArt>
+      {(fill) => (
+        <>
+          <rect x="10" y="8" width="44" height="48" rx="8" fill={fill} />
+          <path d="m18 22 3.5 3.5L28 19" stroke={WHITE} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M34 22h12" stroke={WHITE} strokeWidth={2.5} strokeLinecap="round" />
+          <path d="m18 38 3.5 3.5L28 35" stroke={WHITE} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M34 38h12" stroke={WHITE} strokeWidth={2.5} strokeLinecap="round" />
+        </>
+      )}
+    </FeatureArt>
+  );
+}
+
+export function DiaryFeatureIcon() {
+  return (
+    <FeatureArt>
+      {(fill) => (
+        <>
+          <path d="M16 8h28a4 4 0 0 1 4 4v40a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z" fill={fill} />
+          <path d="M12 20H8M12 32H8M12 44H8" stroke={fill} strokeWidth={3.5} strokeLinecap="round" />
+          <path d="M22 22h18M22 32h18M22 42h10" stroke={WHITE} strokeWidth={2.5} strokeLinecap="round" />
+        </>
+      )}
+    </FeatureArt>
+  );
+}
+
 export function DocumentsFeatureIcon() {
   return <DocumentFileIcon />;
 }

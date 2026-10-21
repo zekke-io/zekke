@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "note": "What a calendar or diary row seals, as JSON, with the value each client must read from it. The web app's lib/calendar and lib/diary produce and read these; the Kotlin core must read the same.",
+  "limits": {
+    "max_payload_bytes": 90000,
+    "max_title_characters": 300,
+    "max_notes_characters": 10000,
+    "max_location_characters": 500,
+    "max_reminders": 5,
+    "max_reminder_minutes": 40320,
+    "max_overrides": 200,
+    "max_list_name_characters": 100,
+    "max_diary_characters": 20000
+  },
+  "event": {
+    "payload": {
+      "version": 1,
+      "type": "event",
+      "title": "Class",
+      "notes": "Bring the mat",
+      "location": "Studio 4",
+      "start": { "dateTime": "2026-10-05T19:00", "tz": "America/Sao_Paulo" },
+      "end": { "dateTime": "2026-10-05T20:00", "tz": "America/Sao_Paulo" },
+      "recurrence": { "frequency": "weekly", "interval": 1, "weekdays": [1] },
+      "overrides": {
+        "2026-10-12": { "cancelled": true },
+        "2026-10-19": {
+          "title": "Class (online)",
+          "start": { "dateTime": "2026-10-19T20:00", "tz": "America/Sao_Paulo" },
+          "end": { "dateTime": "2026-10-19T21:00", "tz": "America/Sao_Paulo" }
+        }
+      },
+      "reminders": [10, 30]
+    },
+    "occurrences_2026_10": [
+      { "original_date": "2026-10-05", "title": "Class", "start": "2026-10-05T19:00" },
+      { "original_date": "2026-10-19", "title": "Class (online)", "start": "2026-10-19T20:00" },
+      { "original_date": "2026-10-26", "title": "Class", "start": "2026-10-26T19:00" }
+    ]
+  },
+  "event_all_day": {
+    "payload": {
+      "version": 1,
+      "type": "event",
+      "title": "Trip",
+      "notes": "",
+      "location": "",
+      "start": { "date": "2026-10-10" },
+      "end": { "date": "2026-10-13" },
+      "overrides": {},
+      "reminders": []
+    },
+    "note": "An all-day end is exclusive: this event covers the 10th, 11th and 12th."
+  },
+  "task": {
+    "payload": {
+      "version": 1,
+      "type": "task",
+      "title": "Pay rent",
+      "notes": "",
+      "order": "V",
+      "reminders": [60],
+      "list": "listaaaaaa",
+      "due": { "date": "2026-10-30" }
+    },
+    "done_payload": {
+      "version": 1,
+      "type": "task",
+      "title": "Book flight",
+      "notes": "",
+      "order": "k",
+      "reminders": [],
+      "doneAt": 1790000000000
+    }
+  },
+  "list": {
+    "payload": { "version": 1, "type": "list", "name": "Home", "order": "V" }
+  },
+  "diary_entry": {
+    "payload": { "version": 1, "type": "entry", "date": "2026-10-18", "text": "Long walk by the river." }
+  },
+  "order_keys": {
+    "note": "Fractional keys over 0-9A-Za-z, compared as plain strings; a key never ends in 0.",
+    "between": [
+      { "before": null, "after": null, "key": "V" },
+      { "before": "V", "after": null, "key": "l" },
+      { "before": null, "after": "V", "key": "G" },
+      { "before": "V", "after": "k", "key": "d" }
+    ]
+  },
+  "refused": [
+    { "type": "event", "reason": "an impossible date", "payload": { "version": 1, "type": "event", "title": "x", "start": { "date": "2026-02-30" }, "end": { "date": "2026-03-02" } } },
+    { "type": "event", "reason": "an unknown time zone", "payload": { "version": 1, "type": "event", "title": "x", "start": { "dateTime": "2026-02-20T10:00", "tz": "Mars/Base" }, "end": { "dateTime": "2026-02-20T11:00", "tz": "Mars/Base" } } },
+    { "type": "event", "reason": "a version other than 1", "payload": { "version": 2, "type": "event" } },
+    { "type": "task", "reason": "an order key that ends in 0", "payload": { "version": 1, "type": "task", "title": "x", "order": "V0" } },
+    { "type": "entry", "reason": "a date that does not exist", "payload": { "version": 1, "type": "entry", "date": "2026-13-01", "text": "x" } }
+  ]
+}

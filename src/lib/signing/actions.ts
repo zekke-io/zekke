@@ -10,6 +10,7 @@ export interface ActionSpec {
 export const ACTIONS = {
   'chain-read': { args: ['user_address'], signer: 'root', pinProof: true },
   'device-enrol': { args: ['user_address', 'batch_digest'], signer: 'root', pinProof: true },
+  'keyring-open': { args: ['user_address', 'batch_digest'], signer: 'root', pinProof: true },
   'account-delete': { args: ['user_address'], signer: 'root', pinProof: true },
   'second-factor-begin': {
     args: ['user_address', 'blinded_element'],
@@ -23,6 +24,8 @@ export const ACTIONS = {
   'secret-delete': { args: ['secret_id'], signer: 'device', pinProof: false, variadic: true },
   'secret-purge': { args: ['secret_id'], signer: 'device', pinProof: false, variadic: true },
   'note-delete': { args: ['note_id'], signer: 'device', pinProof: false, variadic: true },
+  'calendar-delete': { args: ['calendar_item_id'], signer: 'device', pinProof: false, variadic: true },
+  'diary-delete': { args: ['diary_entry_id'], signer: 'device', pinProof: false, variadic: true },
   'document-delete': {
     args: ['document_id'],
     signer: 'device',
@@ -39,6 +42,8 @@ export const ACTIONS = {
   'file-purge': { args: ['file_or_folder_id'], signer: 'device', pinProof: false, variadic: true },
   'secret-rekey': { args: ['secret_id'], signer: 'device', pinProof: false, variadic: true },
   'note-rekey': { args: ['note_id'], signer: 'device', pinProof: false, variadic: true },
+  'calendar-rekey': { args: ['calendar_item_id'], signer: 'device', pinProof: false, variadic: true },
+  'diary-rekey': { args: ['diary_entry_id'], signer: 'device', pinProof: false, variadic: true },
   'document-rekey': {
     args: ['document_id'],
     signer: 'device',

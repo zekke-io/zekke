@@ -1,10 +1,11 @@
 import { ApiError, request } from '@/lib/api';
-import type { StoredChainEvent } from '@/lib/chain';
+import { batchDigest, type StoredChainEvent } from '@/lib/chain';
 import { requireToken, type AuthedContext, type TokenContext } from '@/lib/context';
 import { isKeyringScope, type KeyringScope } from '@/lib/scopes';
 import type { CurrentGenerations, KeyringEntry, SessionKeystore } from '@/lib/session';
 import { MissingGenerationError } from '@/lib/session';
 import { openDeviceWrap, openRootWrap, type DeviceSecrets } from './crypto';
+import { signRootAction, type PinProofSigner, type Signer } from '@/lib/signing';
 import type { DeviceBatch, KeyringWrap } from './batches';
 
 export interface KeyringGenerationRecord {
@@ -167,6 +168,28 @@ export async function applyDeviceBatch(
     token: requireToken(context),
     timeoutMs: context.timeoutMs,
     body: { batch },
+  });
+  return { devices: response.data?.devices ?? [], head: response.data?.head ?? 0 };
+}
+
+export async function openKeyringsWithRoot(
+  context: AuthedContext,
+  root: Signer,
+  batch: DeviceBatch,
+  pinProof?: PinProofSigner,
+): Promise<DevicesRecord> {
+  const envelope = await signRootAction(
+    'keyring-open',
+    [context.session.userAddress, batchDigest(batch.events)],
+    root,
+    pinProof,
+  );
+  const response = await request<DevicesRecord>({
+    method: 'POST',
+    path: '/keyrings/open',
+    token: requireToken(context),
+    timeoutMs: context.timeoutMs,
+    body: { ...envelope, batch },
   });
   return { devices: response.data?.devices ?? [], head: response.data?.head ?? 0 };
 }

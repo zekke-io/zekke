@@ -10,6 +10,7 @@ import {
 } from "@/lib/encoding";
 import {
   KEYRING_SCOPES,
+  isGenesisRotation,
   formatScopeList,
   isKeyringScope,
   keyringScopesOf,
@@ -35,6 +36,7 @@ export type EventType =
   | "device-remove"
   | "device-scopes"
   | "keyring-rotate"
+  | "keyring-open"
   | "sharing-keys";
 
 export interface ChainEvent {
@@ -412,6 +414,9 @@ export class ChainState {
       case "keyring-rotate":
         this.applyKeyringRotate(parsed.fields, signerDevice, tally);
         break;
+      case "keyring-open":
+        this.applyKeyringOpen(parsed.fields, event.signer, tally);
+        break;
       case "sharing-keys":
         this.applySharingKeys(parsed.fields, signerDevice, tally, replay);
         break;
@@ -573,13 +578,18 @@ export class ChainState {
 
     const rotations = parseRotations(fields[0]);
     const scopes = Object.keys(rotations) as KeyringScope[];
-    if (this.seq === 2 && scopes.length !== KEYRING_SCOPES.length) {
+    if (this.seq === 2 && !isGenesisRotation(scopes)) {
       throw invalid("the genesis rotation sets every keyring scope");
     }
     for (const scope of scopes) {
       const next = (this.generations.get(scope) ?? 0) + 1;
       if (rotations[scope] !== next) {
         throw invalid(`${scope} must rotate to generation ${next}`);
+      }
+      if (this.seq !== 2 && next === 1) {
+        throw invalid(
+          `${scope} has no keyring to rotate: it is opened with keyring-open`,
+        );
       }
     }
     for (const scope of scopes) {
@@ -589,6 +599,57 @@ export class ChainState {
         ...(tally.rotated.get(scope) ?? []),
         generation,
       ]);
+    }
+  }
+
+  fullDeviceIds(): string[] {
+    const existing = [...this.generations]
+      .filter(([, generation]) => generation > 0)
+      .map(([scope]) => scope);
+    return [...this.devices]
+      .filter(
+        ([, device]) =>
+          device.active &&
+          device.scopes.has("admin") &&
+          existing.every((scope) => device.scopes.has(scope)),
+      )
+      .map(([id]) => id)
+      .sort();
+  }
+
+  private applyKeyringOpen(
+    fields: string[],
+    signer: string,
+    tally: BatchTally,
+  ): void {
+    if (fields.length !== 1) {
+      throw invalid("keyring-open takes 1 field");
+    }
+    if (signer !== ROOT_SIGNER) {
+      throw invalid("keyring-open is signed by the root");
+    }
+
+    const openings = parseRotations(fields[0]);
+    const scopes = Object.keys(openings) as KeyringScope[];
+    for (const scope of scopes) {
+      if (openings[scope] !== 1) {
+        throw invalid(`${scope} is opened at generation 1`);
+      }
+      if ((this.generations.get(scope) ?? 0) !== 0) {
+        throw invalid(`${scope} already has a keyring`);
+      }
+    }
+
+    const holders = this.fullDeviceIds();
+    for (const scope of scopes) {
+      this.generations.set(scope, 1);
+      tally.rotated.set(scope, [1]);
+    }
+    for (const id of holders) {
+      const device = this.devices.get(id) as ChainDevice;
+      for (const scope of scopes) {
+        device.scopes.add(scope);
+      }
     }
   }
 

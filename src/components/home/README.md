@@ -72,3 +72,8 @@ The bar is the sidebar's `StorageMeter` bar, larger: stored bytes solid, reserva
   store, so the sidebar meter moves with it. The count shows `…` until it arrives.
 - **A deployment without the drive shows no summary**, as the sidebar shows no meter: the drive
   being switched off is not an error to report on Home.
+
+
+## Accounts created before Calendar, To-do and Diary
+
+A full device that does not hold `calendar` or `diary` shows their icons anyway: the screen behind them is the *Turn on* screen of [`components/features`](../features/README.md).

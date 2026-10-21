@@ -191,9 +191,11 @@ export async function buildGenesis(options: {
   root: Signer;
   wrapForRoot: RootWrapper;
   device: DeviceKeysDeclaration;
+  keyrings?: readonly KeyringScope[];
 }): Promise<BuiltBatch> {
   const state = new ChainState(options.userAddress, options.rootPublicKey);
-  const created: CreatedGeneration[] = KEYRING_SCOPES.map((scope) => ({
+  const keyrings = options.keyrings ?? KEYRING_SCOPES;
+  const created: CreatedGeneration[] = keyrings.map((scope) => ({
     scope,
     generation: 1,
     kek: generateScopeKek(),
@@ -210,7 +212,7 @@ export async function buildGenesis(options: {
     },
     {
       type: 'keyring-rotate',
-      fields: [formatRotations(Object.fromEntries(KEYRING_SCOPES.map((scope) => [scope, 1])))],
+      fields: [formatRotations(Object.fromEntries(keyrings.map((scope) => [scope, 1])))],
     },
   ];
 
@@ -280,6 +282,66 @@ export async function buildRotation(options: {
     throw new Error('a rotation names at least one keyring scope');
   }
   return assemble(options.state, options.author, rotation.planned, rotation.created, options.wrapForRoot);
+}
+
+function openingPlan(
+  state: ChainState,
+  scopes: readonly KeyringScope[],
+): { planned: PlannedEvent[]; created: CreatedGeneration[] } {
+  const ordered = KEYRING_SCOPES.filter((scope) => scopes.includes(scope));
+  const openings: Rotations = {};
+  const created: CreatedGeneration[] = [];
+  for (const scope of ordered) {
+    if ((state.generations.get(scope) ?? 0) !== 0) {
+      throw new Error(`${scope} already has a keyring`);
+    }
+    openings[scope] = 1;
+    created.push({ scope, generation: 1, kek: generateScopeKek() });
+  }
+  return {
+    planned: [{ type: 'keyring-open', fields: [formatRotations(openings)] }],
+    created,
+  };
+}
+
+export async function buildKeyringOpening(options: {
+  state: ChainState;
+  root: Signer;
+  wrapForRoot: RootWrapper;
+  scopes: readonly KeyringScope[];
+}): Promise<BuiltBatch> {
+  if (options.scopes.length === 0) {
+    throw new Error('opening names at least one keyring scope');
+  }
+  const opening = openingPlan(options.state, options.scopes);
+  return assemble(
+    options.state,
+    { name: ROOT_SIGNER, signer: options.root },
+    opening.planned,
+    opening.created,
+    options.wrapForRoot,
+  );
+}
+
+export async function buildEnrolmentOpeningKeyrings(options: {
+  state: ChainState;
+  root: Signer;
+  wrapForRoot: RootWrapper;
+  device: DeviceKeysDeclaration;
+  scopes: readonly KeyringScope[];
+}): Promise<BuiltBatch> {
+  const opening = openingPlan(options.state, options.scopes);
+  const planned: PlannedEvent[] = [
+    { type: 'device-add', fields: deviceAddFields(options.device) },
+    ...opening.planned,
+  ];
+  return assemble(
+    options.state,
+    { name: ROOT_SIGNER, signer: options.root },
+    planned,
+    opening.created,
+    options.wrapForRoot,
+  );
 }
 
 export async function buildSelfRemoval(options: {

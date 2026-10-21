@@ -205,8 +205,8 @@ describe('the four batchable delete actions', () => {
 });
 
 describe('the action table matches signed-actions.md', () => {
-  it('covers all 36 actions', () => {
-    expect(Object.keys(ACTIONS)).toHaveLength(36);
+  it('covers all 41 actions', () => {
+    expect(Object.keys(ACTIONS)).toHaveLength(41);
   });
 
   it('keeps destroying a deleted secret a different action from deleting one', () => {
@@ -241,6 +241,7 @@ describe('the action table matches signed-actions.md', () => {
         'chain-read',
         'device-enrol',
         'enable-second-factor',
+        'keyring-open',
         'pin-evaluate',
         'rotate-second-factor',
         'second-factor-begin',
@@ -250,7 +251,7 @@ describe('the action table matches signed-actions.md', () => {
 
   it('takes a PIN proof on the root actions that can hurt a Paranoid account, and never on a device action', () => {
     for (const [action, spec] of Object.entries(ACTIONS)) {
-      const expected = ['account-delete', 'chain-read', 'device-enrol', 'rotate-second-factor', 'second-factor-begin'].includes(action);
+      const expected = ['account-delete', 'chain-read', 'device-enrol', 'keyring-open', 'rotate-second-factor', 'second-factor-begin'].includes(action);
       expect(spec.pinProof).toBe(expected);
     }
   });
