@@ -45,16 +45,16 @@ sits outside the screen's tree.
 changes section itself, and a screen is rendered as `<Screen />` with no props, so the shell hands
 it the way through a context: `ShellNavigationProvider` wraps the screen with the scope-filtered
 sections that carry an `appIcon` and the same `select` the sidebar calls. `appIcon` is the large
-feature mark Home draws ([`components/home`](../home/README.md)); `icon` stays the small outline
-glyph the sidebar draws. Home has no `appIcon`, so it does not list itself.
+feature mark Home draws ([`components/home`](../home/README.md)); the sidebar draws the same tile small, and `icon` is the outline glyph of a section with no `appIcon`
+(Home). Home has no `appIcon`, so it does not list itself.
 
 ## The screen strip
 
 Both headers and an empty slot under them share one sticky wrapper. A screen puts a full-width bar
-there — the Vault and Notes tabs — by wrapping it in `ScreenStrip` (`ScreenStrip.tsx`), which portals
+there by wrapping it in `ScreenStrip` (`ScreenStrip.tsx`), which portals
 into the slot the shell provides through `ScreenStripSlotProvider`. The slot is `empty:hidden`, so a
 screen that puts nothing there leaves no gap, and the bar is not capped by the content measure: it
-starts at the sidebar's edge. Outside the shell, `ScreenStrip` renders its children in place.
+starts at the sidebar's edge. Outside the shell, `ScreenStrip` renders its children in place. No screen uses it at the moment: the Vault and Notes tabs are pills inside the page.
 
 **Both headers are `relative z-10`** above the slot. Their `backdrop-blur` makes each its own
 stacking context, so the account menu's `z-20` only counts inside its header; without the header
