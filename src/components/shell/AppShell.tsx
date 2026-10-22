@@ -24,6 +24,7 @@ import PasswordsScreen from '@/components/passwords/PasswordsScreen';
 import AccountMenu from './AccountMenu';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
+import FeedbackButton from './FeedbackButton';
 import NewVersionNotice from './NewVersionNotice';
 import CheckoutReturnNotice from '@/components/plan/CheckoutReturnNotice';
 import GraceNotice from '@/components/plan/GraceNotice';
@@ -303,6 +304,7 @@ export default function AppShell() {
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
                   <NotificationBell />
+                  <FeedbackButton />
                   <ThemeToggle />
                   <AccountMenu
                     username={account?.username}
@@ -324,6 +326,7 @@ export default function AppShell() {
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
                   <NotificationBell />
+                  <FeedbackButton />
                   <ThemeToggle />
                   <AccountMenu
                     username={account?.username}
