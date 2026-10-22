@@ -24,6 +24,7 @@ import PasswordsScreen from '@/components/passwords/PasswordsScreen';
 import AccountMenu from './AccountMenu';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
+import FeedbackButton from './FeedbackButton';
 import NewVersionNotice from './NewVersionNotice';
 import CheckoutReturnNotice from '@/components/plan/CheckoutReturnNotice';
 import GraceNotice from '@/components/plan/GraceNotice';
@@ -44,6 +45,7 @@ import {
   SecretsFeatureIcon,
   SharingFeatureIcon,
   SpreadsheetsFeatureIcon,
+  TrashFeatureIcon,
 } from '@/components/home/FeatureIcons';
 import {
   CalendarIcon,
@@ -207,6 +209,7 @@ const NAV_ITEMS = [
     label: 'Trash',
     description: 'Deleted documents, spreadsheets and Drive files, until they are deleted for good.',
     icon: TrashIcon,
+    appIcon: TrashFeatureIcon,
     screen: TrashScreen,
   },
 ] as const satisfies readonly NavItem[];
@@ -301,6 +304,7 @@ export default function AppShell() {
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
                   <NotificationBell />
+                  <FeedbackButton />
                   <ThemeToggle />
                   <AccountMenu
                     username={account?.username}
@@ -322,6 +326,7 @@ export default function AppShell() {
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
                   <NotificationBell />
+                  <FeedbackButton />
                   <ThemeToggle />
                   <AccountMenu
                     username={account?.username}
@@ -472,6 +477,7 @@ function BrandMark() {
 
 function NavButton({ item, active, onSelect }: { item: NavItem; active: boolean; onSelect: () => void }) {
   const ItemIcon = item.icon;
+  const FeatureTile = item.appIcon;
 
   return (
     <button
@@ -479,7 +485,13 @@ function NavButton({ item, active, onSelect }: { item: NavItem; active: boolean;
       aria-current={active ? 'page' : undefined}
       className={`flex cursor-pointer items-center gap-3 rounded-full px-4 py-2.5 text-base font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 w-full ${active ? 'bg-brand-100 text-brand-700' : 'text-ink-soft hover:bg-brand-50 hover:text-ink'}`}
     >
-      <ItemIcon className={`h-5 w-5 shrink-0 ${active ? 'text-brand-700' : 'text-ink-muted'}`} />
+      {FeatureTile === undefined ? (
+        <ItemIcon className={`h-6 w-6 shrink-0 ${active ? 'text-brand-700' : 'text-ink-muted'}`} />
+      ) : (
+        <span className="block h-6 w-6 shrink-0">
+          <FeatureTile />
+        </span>
+      )}
       <span>{item.label}</span>
     </button>
   );

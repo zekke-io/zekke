@@ -9,6 +9,7 @@ The frame around every screen, and what sits in it.
 | `LightTheme.tsx` | Renders nothing; while mounted it sets `data-theme="light"` on `<html>` and restores the previous value on leaving. The document and spreadsheet editor routes mount it, so they stay light whatever the system or the header button chose |
 | `ThemeToggle.tsx` | The button between the bell and the account menu: cycles the theme through the system setting, light and dark, remembers it in this browser (`readTheme` in `lib/app/icon-size.ts`) and sets `data-theme` on `<html>`; the system choice removes the attribute |
 | `NotificationBell.tsx` | The bell in the top bar, with the unread count. It reads the count on mount, every five minutes and when the window regains focus; opening it loads the newest page and marks what it showed as read. **A rising count re-reads `GET /users/me`**, because every notification so far is about the plan. Polling failures are silent: a missing badge is not worth an error |
+| `FeedbackButton.tsx` | The chat button after the bell, in both top bars. It opens the *Feedback* dialog (rendered in a portal on `document.body`, because the blurred top bar would otherwise become the dialog's containing block and push it off the screen) (*What would make Zekke better?*, up to 1000 characters with the count left, *Only this message is sent. Your files stay locked.*) and, once `POST /feedback` accepts it, a *Thank you* dialog with *Done*. A failed send keeps the text and shows the reason (a rate limit says how long to wait). Nothing but the message is sent; the account comes from the session's token. The words are `FEEDBACK_COPY` in `lib/app/feedback.ts` |
 | `NewVersionNotice.tsx` | Above every screen, only when needed: asks `/build-id` when the window regains focus and every thirty minutes, and offers *Reload* when the server runs a newer deploy than this tab. A failed check shows nothing |
 | `ScreenStrip.tsx` | The full-width bar slot under the top bar, for a screen's own tabs |
 | `ShellNavigation.tsx` | The context a screen uses to open another section — how Home's icons navigate |
@@ -45,16 +46,16 @@ sits outside the screen's tree.
 changes section itself, and a screen is rendered as `<Screen />` with no props, so the shell hands
 it the way through a context: `ShellNavigationProvider` wraps the screen with the scope-filtered
 sections that carry an `appIcon` and the same `select` the sidebar calls. `appIcon` is the large
-feature mark Home draws ([`components/home`](../home/README.md)); `icon` stays the small outline
-glyph the sidebar draws. Home has no `appIcon`, so it does not list itself.
+feature mark Home draws ([`components/home`](../home/README.md)); the sidebar draws the same tile small, and `icon` is the outline glyph of a section with no `appIcon`
+(Home). Home has no `appIcon`, so it does not list itself.
 
 ## The screen strip
 
 Both headers and an empty slot under them share one sticky wrapper. A screen puts a full-width bar
-there — the Vault and Notes tabs — by wrapping it in `ScreenStrip` (`ScreenStrip.tsx`), which portals
+there by wrapping it in `ScreenStrip` (`ScreenStrip.tsx`), which portals
 into the slot the shell provides through `ScreenStripSlotProvider`. The slot is `empty:hidden`, so a
 screen that puts nothing there leaves no gap, and the bar is not capped by the content measure: it
-starts at the sidebar's edge. Outside the shell, `ScreenStrip` renders its children in place.
+starts at the sidebar's edge. Outside the shell, `ScreenStrip` renders its children in place. No screen uses it at the moment: the Vault and Notes tabs are pills inside the page.
 
 **Both headers are `relative z-10`** above the slot. Their `backdrop-blur` makes each its own
 stacking context, so the account menu's `z-20` only counts inside its header; without the header

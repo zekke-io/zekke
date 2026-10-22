@@ -162,14 +162,15 @@ export function PinField({
 export function TextArea({
   label,
   hint,
+  plain = false,
   className = '',
   ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; hint?: string }) {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string; hint?: string; plain?: boolean }) {
   return (
     <label className="block">
       <span className={LABEL_CLASS}>{label}</span>
       <textarea
-        className={maskedInputClass(INPUT_CLASS, 'h-28 resize-y font-mono', className)}
+        className={maskedInputClass(INPUT_CLASS, plain ? 'h-28 resize-none leading-snug' : 'h-28 resize-y font-mono', className)}
         {...PRIVATE_TEXT_PROPS}
         {...props}
       />

@@ -28,6 +28,7 @@ export * from './secret-field';
 export * from './folders';
 export * from './pairing';
 export * from './trash';
+export * from './feedback';
 export * from './notifications';
 export * from './build';
 export * from './plan';
