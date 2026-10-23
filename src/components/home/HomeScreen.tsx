@@ -28,7 +28,7 @@ function AppIcons() {
             title={description}
             className="group flex w-full flex-col items-center gap-2.5 rounded-2xl p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
           >
-            <span className="flex h-16 w-16 items-center justify-center rounded-[28%] bg-surface p-3 shadow-raised ring-1 ring-line transition duration-150 group-hover:-translate-y-0.5 group-hover:shadow-lift group-hover:ring-brand-300 group-active:translate-y-0 group-active:scale-95 sm:h-20 sm:w-20 sm:p-4">
+            <span className="block h-16 w-16 transition duration-150 group-hover:-translate-y-0.5 group-active:translate-y-0 group-active:scale-95 sm:h-20 sm:w-20">
               <AppIcon />
             </span>
             <span className="text-compact font-extrabold text-ink">{label}</span>

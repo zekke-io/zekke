@@ -9,7 +9,7 @@ no item type. Import them from the barrel, `@/components/ui`; the icons are a se
 | `Card.tsx` | `Card` — a heading, an optional subtitle, an `actions` slot and the content — `PanelGrid`, and `Panel` |
 | `Button.tsx` | `Button` and its variants, `IconButton`, `HintedIconButton` ([Icon-only header buttons](#icon-only-header-buttons)), `FloatingAddButton` and `FloatingAddMenu` ([Adding an item](#adding-an-item)) |
 | `CopyButton.tsx` | The only way a secret reaches the clipboard: it clears the clipboard after 30 s ([`lib/app`](../../lib/app/README.md#plaintext-the-browser-would-otherwise-send-away)) |
-| `fields.tsx` | `Field`, `PinField`, `TextArea`, `SecretField`, `Select` — they share one input and label style |
+| `fields.tsx` | `Field`, `PinField`, `TextArea` (monospace by default, for secrets; `plain` is the ordinary writing style), `SecretField`, `Select` — they share one input and label style |
 | `Badge.tsx`, `Notice.tsx`, `Empty.tsx`, `Spinner.tsx` | Status and empty-state surfaces |
 | `SizeStepper.tsx` | The grids' icon-size control ([The size control](#the-size-control)) |
 | `LayoutToggle.tsx` | Grid or list, on the drive and documents ([Grid or list](../tiles/README.md#grid-or-list)) |

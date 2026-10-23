@@ -55,6 +55,7 @@ STALE_KEY_GENERATION` when it is not the scope's current one.
 - [25. Client Version Endpoints](#25-client-version-endpoints)
 - [26. Preferences Endpoints](#26-preferences-endpoints)
 - [27. Change Feed Endpoint](#27-change-feed-endpoint)
+- [28. Feedback Endpoint](#28-feedback-endpoint)
 
 ---
 
@@ -2663,6 +2664,8 @@ notifications (90 days) are never listed.
 | `grace_started` | `reason` (`ended` or `smaller_plan`), `plan`, `grace_ends_at` |
 | `data_loss_countdown` | `days_left`, `over_bytes`, `grace_ends_at` |
 | `data_deleted` | `files`, `deleted_bytes` |
+| `connection_invited` | `connection_id` |
+| `item_shared` | `connection_id`, `share_id`, `item_type` |
 
 Every parameter may be absent; write the sentence without it. A notification about the plan is a
 cue to read `GET /users/me` again.
@@ -2856,3 +2859,26 @@ bytes of JSON**, which seals to under the server's cap of 131 072 base64 charact
 
 `409 STALE_KEY_GENERATION` and the change feed (`GET /changes?scope=calendar` or `diary`) work as for
 notes. Neither scope is a sharing item type: the diary is never shared.
+
+---
+
+## 28. Feedback Endpoint
+
+A short message from the person using the app. The server takes the account from the token, so the
+body carries nothing but the message and the app must not put anything identifying in it.
+
+### `POST /feedback` — 🔒 protected
+
+Any device, no signature. Rate limited per account (10 an hour by default). `{ "message": "…" }`, at
+most **1000 characters** after trimming.
+
+**`201 Created`**
+
+```json
+{ "message": "Feedback received", "data": { "id": "uuid", "created_at": "2026-10-22T12:00:00Z" } }
+```
+
+**Errors:** `400 INVALID_BODY` · `400 BAD_REQUEST` (empty, only whitespace, over 1000 characters) ·
+`401 UNAUTHORIZED` · `429 TOO_MANY_REQUESTS` · `500 INTERNAL_ERROR`.
+
+The apps call nothing else of this domain.

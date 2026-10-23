@@ -19,6 +19,8 @@ describe('notificationView', () => {
       'grace_started',
       'data_loss_countdown',
       'data_deleted',
+      'connection_invited',
+      'item_shared',
     ];
     for (const kind of kinds) {
       const view = notificationView(record(kind), now);
@@ -42,6 +44,20 @@ describe('notificationView', () => {
     expect(view.tone).toBe('danger');
 
     expect(notificationView(record('expiring', { plan: 'premium_1', days: 7 }), now).title).toBe('Premium 1 ends in 7 days');
+  });
+
+  it('tells the invitee about an invitation to connect', () => {
+    const view = notificationView(record('connection_invited', { connection_id: 'c1' }), now);
+    expect(view.title).toBe('New invitation to connect');
+    expect(view.body).toContain('Shared');
+    expect(view.tone).toBe('info');
+  });
+
+  it('names what was shared and falls back when the type is unknown', () => {
+    expect(notificationView(record('item_shared', { item_type: 'note' }), now).title).toBe('A note was shared with you');
+    expect(notificationView(record('item_shared', { item_type: 'file' }), now).title).toBe('A file was shared with you');
+    expect(notificationView(record('item_shared', { item_type: 'toast' }), now).title).toBe('Something was shared with you');
+    expect(notificationView(record('item_shared'), now).title).toBe('Something was shared with you');
   });
 
   it('ignores parameters of the wrong type', () => {

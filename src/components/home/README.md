@@ -7,38 +7,43 @@ and a tap opens that section.
 | File | Role |
 | --- | --- |
 | `HomeScreen.tsx` | The icon grid |
-| `FeatureIcons.tsx` | The six feature marks, one component each |
+| `FeatureIcons.tsx` | The eleven feature tiles, one component each |
 | `HomeStorage.tsx` | The storage summary above the icons: used, free, and how many files |
 
 ## Where the icons come from
 
-The marks are the landing page's feature icons (`landing-page/public/icons/*.svg`, described in
-[its README](../../../../landing-page/README.md#icons)) — the filled set: bodies in a gradient, the
-detail knocked out in white. They are **copied in as React components, not imported or fetched**:
-`web-app` depends on no other module in the workspace ([CLAUDE.md](../../../../CLAUDE.md)), and an
-inline SVG needs no `img-src` entry in the Content Security Policy.
+The tiles are the *Feature icons* board of the Zekke File Icons design: a rounded square in the
+feature's own colour with a soft highlight on top, a cream shape knocked into it and a small shadow
+beneath. They are **copied in as React components, not imported or fetched**: `web-app` depends on no
+other module in the workspace ([CLAUDE.md](../../../../CLAUDE.md)), and an inline SVG needs no `img-src`
+entry in the Content Security Policy.
 
-Two things changed in the copy, and nothing else:
+| Section | Tile | Colour |
+| --- | --- | --- |
+| Vault | a dial | violet |
+| Passwords | a key | orange |
+| Notes | a tilted note | amber |
+| Documents | a page with a pencil | blue |
+| Spreadsheets | a grid | green |
+| Drive | a folder with a padlock | bright orange |
+| Calendar | a calendar with rings | red |
+| To-do | a checked list | purple |
+| Diary | a book with a bookmark | brown |
+| Shared | two people and a padlock | teal |
+| Trash | a bin | grey-brown |
 
-- **The colours are tokens.** The ramp is `brand-500 → brand-300`, so the stops read `var(--color-brand-500)` and `var(--color-brand-300)`, and the
-  knock-outs `var(--color-surface)`. A palette change reaches the icons.
-- **The gradient id comes from `useId`.** An inlined SVG's ids are global to the page, so six
-  icons all declaring `g-drive` would all paint with whichever gradient was defined first. The id
-  is stripped to `[A-Za-z0-9_-]` because it is used inside `url(#…)`.
-
-Which icon belongs to which section is the `appIcon` field of the section's entry in `NAV_ITEMS`
-(`components/shell/AppShell.tsx`): Vault is the key, Passwords the card, Notes the page, Documents
-the blue document file icon and Spreadsheets the green sheet one (the same `FileTypeIcon`s the drive,
-the lists and the `+` menu draw, so a kind looks the same everywhere), Drive the cloud, Shared the padlock between two nodes. **A section with no `appIcon`
-is not on Home** — Home itself has none.
+Each tile carries its own colours, so a palette change does not reach them, and each is the whole
+tile: the grid draws no card behind it. Which tile belongs to which section is the `appIcon` field
+of the section's entry in `NAV_ITEMS` (`components/shell/AppShell.tsx`). The sidebar and the lists
+keep their line icons and the shared `FileTypeIcon`s. **A section with no `appIcon` is not on
+Home** — Home itself has none.
 
 ## What it shows
 
 - **Only the sections this browser holds.** The shell passes its already scope-filtered
   navigation through `ShellNavigation` (`components/shell/ShellNavigation.tsx`), the same list the
   sidebar draws, so a device without the `files` scope has no Drive icon here either.
-- **The tile is the phone's shape**: a white rounded square (`rounded-[22%]`, near iOS's corner),
-  a hairline ring and the card shadow, the mark inset inside it, the label underneath. It lifts on
+- **The tile is the phone's shape**: the feature's tile with the label underneath. It lifts on
   hover and presses in on tap. 64px on a phone, 80px from `sm` up; the grid is `auto-fill`, so it
   wraps to however many fit.
 - **The section's description is the tooltip**, the same sentence the top bar shows once it is
