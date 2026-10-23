@@ -16,7 +16,7 @@ export interface NotificationView {
 export const NOTIFICATIONS_COPY = {
   open: 'Notifications',
   title: 'Notifications',
-  empty: 'Nothing new. Notices about your plan and your storage appear here.',
+  empty: 'Nothing new. Invitations, shared items and notices about your plan and storage appear here.',
   loadMore: 'Show older',
   loading: 'Loading…',
   failed: 'Notifications could not be loaded. Try again in a moment.',
@@ -29,6 +29,13 @@ const PLAN_NAMES: Record<string, string> = {
   free: 'Free',
   premium_1: 'Premium 1',
   premium_2: 'Premium 2',
+};
+
+const SHARED_ITEMS: Record<string, string> = {
+  secret: 'a secret',
+  note: 'a note',
+  document: 'a document',
+  file: 'a file',
 };
 
 const MINUTE = 60_000;
@@ -167,6 +174,20 @@ function copyFor(record: NotificationRecord): Pick<NotificationView, 'title' | '
           ' Renew, or download and delete files yourself, before the most recent uploads are deleted for good.' +
           ' Images in documents are never deleted, but they count, so only files can make room.',
         tone: 'danger',
+      };
+    }
+    case 'connection_invited':
+      return {
+        title: 'New invitation to connect',
+        body: 'Someone invited you to connect. Open Shared to check their fingerprint and accept.',
+        tone: 'info',
+      };
+    case 'item_shared': {
+      const item = typeof params.item_type === 'string' ? SHARED_ITEMS[params.item_type] : undefined;
+      return {
+        title: item === undefined ? 'Something was shared with you' : `${item.charAt(0).toUpperCase()}${item.slice(1)} was shared with you`,
+        body: 'A contact shared it with you. Open Shared to see it.',
+        tone: 'info',
       };
     }
     case 'data_deleted': {
