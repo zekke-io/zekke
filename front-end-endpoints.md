@@ -2664,6 +2664,8 @@ notifications (90 days) are never listed.
 | `grace_started` | `reason` (`ended` or `smaller_plan`), `plan`, `grace_ends_at` |
 | `data_loss_countdown` | `days_left`, `over_bytes`, `grace_ends_at` |
 | `data_deleted` | `files`, `deleted_bytes` |
+| `connection_invited` | `connection_id` |
+| `item_shared` | `connection_id`, `share_id`, `item_type` |
 
 Every parameter may be absent; write the sentence without it. A notification about the plan is a
 cue to read `GET /users/me` again.
