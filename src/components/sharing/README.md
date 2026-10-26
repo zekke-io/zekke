@@ -9,6 +9,7 @@ Everything they decide is in [`lib/sharing`](../../lib/sharing/README.md).
 | `ConnectionInvitation.tsx` | One invitation under review: the two fingerprints to compare, accept and decline |
 | `ShareItemDialog.tsx` | Sending one item to a connection, from the item's own share control, optionally into one of that friendship's folders |
 | `SharedScreen.tsx` | The **Shared** sidebar section: one folder per friendship, and inside each what went both ways, in the folders both people made |
+| `useSharedArrivals.ts` | `useSharedPolling` and `useOnSharedArrival`: while the Shared screen is open and the tab visible, reads the newest notifications every 10 s (doubling to 80 s after failures) and, when an `item_shared` or `connection_invited` one appears that was not there before, makes the screen and the open friendship reload quietly — a failed background reload keeps what is drawn. The first read only sets the baseline. Leaving the screen stops it, and the bell keeps its own five-minute poll; opening the screen always loads fresh. The decisions are in `lib/app/shared-refresh.ts` |
 | `useSharedFolderTree.ts` | One friendship's folder manifest as the `FolderTreeState` the folder components draw |
 
 ## What arrived is a place you keep things

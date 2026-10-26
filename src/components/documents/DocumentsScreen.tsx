@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { feedDocumentMetas } from '@/lib/feed';
-import { useFeedChanges } from '@/components/session/useFeed';
+import { useFeedChanges, useReloadOnReturn } from '@/components/session/useFeed';
 import type { DragEvent } from 'react';
 import {
   createDocument,
@@ -194,6 +194,7 @@ export function DocumentShelfScreen({ shelf }: { shelf: DocumentShelf }) {
   }, [load]);
 
   useFeedChanges('documents', load);
+  useReloadOnReturn(load);
 
   useEffect(() => {
     setSelecting(false);

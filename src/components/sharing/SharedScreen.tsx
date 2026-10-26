@@ -52,6 +52,7 @@ import { FolderPath, FolderTile, MoveToFolder } from '@/components/folders/Folde
 import { FolderDetailsPanel } from '@/components/folders/FolderDetailsPanel';
 import { startItemDrag } from '@/components/folders/FolderTabs';
 import { useSharedFolderTree } from './useSharedFolderTree';
+import { useOnSharedArrival, useSharedPolling } from './useSharedArrivals';
 
 const SCALE = iconScale('medium');
 const SHARED_NOUNS: FolderNouns = { one: 'item', many: 'items' };
@@ -65,18 +66,26 @@ export default function SharedScreen() {
   const [openId, setOpenId] = useState<string>();
   const [message, setMessage] = useState<string>();
 
-  const load = useCallback(async () => {
-    try {
-      setConnections(friendshipFolders(await listConnections(context)));
-    } catch (error) {
-      setMessage(reportError(error));
-      setConnections([]);
-    }
-  }, [context, reportError]);
+  const load = useCallback(
+    async (quiet = false) => {
+      try {
+        setConnections(friendshipFolders(await listConnections(context)));
+      } catch (error) {
+        if (!quiet) {
+          setMessage(reportError(error));
+          setConnections([]);
+        }
+      }
+    },
+    [context, reportError],
+  );
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useSharedPolling();
+  useOnSharedArrival(() => load(true));
 
   if (connections === undefined) {
     return <Spinner />;
@@ -158,22 +167,29 @@ function useSpaceItems(connection: ConnectionRecord, organised: boolean) {
   const [items, setItems] = useState<ReceivedItem[]>();
   const [message, setMessage] = useState<string>();
 
-  const load = useCallback(async () => {
-    try {
-      const held = new Set(sharableItemTypes(context));
-      const described = organised
-        ? await describeBothWays(context, connection, held)
-        : await describeInbound(context, connection, held);
-      setItems(described);
-    } catch (error) {
-      setMessage(reportError(error));
-      setItems([]);
-    }
-  }, [context, connection, organised, reportError]);
+  const load = useCallback(
+    async (quiet = false) => {
+      try {
+        const held = new Set(sharableItemTypes(context));
+        const described = organised
+          ? await describeBothWays(context, connection, held)
+          : await describeInbound(context, connection, held);
+        setItems(described);
+      } catch (error) {
+        if (!quiet) {
+          setMessage(reportError(error));
+          setItems([]);
+        }
+      }
+    },
+    [context, connection, organised, reportError],
+  );
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useOnSharedArrival(() => load(true));
 
   return { items, message, setMessage };
 }

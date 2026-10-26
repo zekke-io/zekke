@@ -84,6 +84,10 @@ function count(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : undefined;
 }
 
+function text(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() !== '' ? value : undefined;
+}
+
 function days(value: number): string {
   return value === 1 ? '1 day' : `${value} days`;
 }
@@ -187,6 +191,36 @@ function copyFor(record: NotificationRecord): Pick<NotificationView, 'title' | '
       return {
         title: item === undefined ? 'Something was shared with you' : `${item.charAt(0).toUpperCase()}${item.slice(1)} was shared with you`,
         body: 'A contact shared it with you. Open Shared to see it.',
+        tone: 'info',
+      };
+    }
+    case 'announcement':
+      return {
+        title: text(params.title) ?? 'News from Zekke',
+        body: text(params.body) ?? 'There is something new in Zekke. Update the app if it does not show yet.',
+        tone: 'info',
+      };
+    case 'feedback_replied':
+      return {
+        title: 'We replied to your feedback',
+        body: text(params.reply) ?? 'Thank you for writing to us. We answered your message.',
+        tone: 'info',
+      };
+    case 'maintenance': {
+      const start = notificationDate(params.starts_at);
+      return {
+        title: 'Planned maintenance',
+        body:
+          `Zekke may be unavailable for a short time${start === undefined ? '' : ` around ${start}`}. ` +
+          'Your data is safe, and the app works again as soon as it ends.',
+        tone: 'warning',
+      };
+    }
+    case 'terms_changed': {
+      const from = notificationDate(params.effective_at);
+      return {
+        title: 'The terms were updated',
+        body: from === undefined ? 'We updated the terms of service.' : `We updated the terms of service. They apply from ${from}.`,
         tone: 'info',
       };
     }

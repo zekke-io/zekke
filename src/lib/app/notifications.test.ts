@@ -78,6 +78,28 @@ describe('notificationView', () => {
     expect(smaller.body).not.toContain('free plan');
   });
 
+  it('writes the global kinds without any per-account parameter', () => {
+    expect(notificationView(record('announcement'), now).title).toBe('News from Zekke');
+    const maintenance = notificationView(record('maintenance', { starts_at: '2026-10-30T02:00:00Z' }), now);
+    expect(maintenance.tone).toBe('warning');
+    expect(maintenance.body).toContain('around');
+    expect(notificationView(record('maintenance'), now).body).not.toContain('around');
+    expect(notificationView(record('terms_changed'), now).body).toBe('We updated the terms of service.');
+    expect(notificationView(record('terms_changed', { effective_at: '2026-11-15T00:00:00Z' }), now).body).toContain('apply from');
+  });
+
+  it('shows the text of an announcement and of a reply as plain text', () => {
+    const announcement = notificationView(record('announcement', { title: 'Calendar is here', body: 'Turn it on in Settings.' }), now);
+    expect(announcement.title).toBe('Calendar is here');
+    expect(announcement.body).toBe('Turn it on in Settings.');
+    expect(notificationView(record('announcement', { title: 1, body: '  ' }), now).title).toBe('News from Zekke');
+
+    const reply = notificationView(record('feedback_replied', { reply: '<b>Fixed</b> in 1.4' }), now);
+    expect(reply.title).toBe('We replied to your feedback');
+    expect(reply.body).toBe('<b>Fixed</b> in 1.4');
+    expect(notificationView(record('feedback_replied'), now).body).toContain('answered your message');
+  });
+
   it('shows something sensible for a kind this version does not know', () => {
     const view = notificationView(record('lottery_won'), now);
     expect(view.title).toBe('Account notice');
