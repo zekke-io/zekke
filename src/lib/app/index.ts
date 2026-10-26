@@ -40,3 +40,4 @@ export * from './spreadsheet-print';
 export * from './spreadsheet-rebuild';
 export * from './region';
 export * from './features';
+export * from './activity';

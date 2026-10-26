@@ -84,6 +84,10 @@ function count(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : undefined;
 }
 
+function text(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() !== '' ? value : undefined;
+}
+
 function days(value: number): string {
   return value === 1 ? '1 day' : `${value} days`;
 }
@@ -192,8 +196,14 @@ function copyFor(record: NotificationRecord): Pick<NotificationView, 'title' | '
     }
     case 'announcement':
       return {
-        title: 'News from Zekke',
-        body: 'There is something new in Zekke. Update the app if it does not show yet.',
+        title: text(params.title) ?? 'News from Zekke',
+        body: text(params.body) ?? 'There is something new in Zekke. Update the app if it does not show yet.',
+        tone: 'info',
+      };
+    case 'feedback_replied':
+      return {
+        title: 'We replied to your feedback',
+        body: text(params.reply) ?? 'Thank you for writing to us. We answered your message.',
         tone: 'info',
       };
     case 'maintenance': {

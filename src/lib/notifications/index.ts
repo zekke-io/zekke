@@ -15,6 +15,7 @@ export const NOTIFICATION_KINDS = [
   'announcement',
   'maintenance',
   'terms_changed',
+  'feedback_replied',
 ] as const;
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];

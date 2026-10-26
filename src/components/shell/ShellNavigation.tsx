@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, type ComponentType } from 'react';
+import type { SettingsTabId } from '@/lib/app';
 
 export interface ShellDestination {
   id: string;
@@ -12,11 +13,13 @@ export interface ShellDestination {
 export interface ShellNavigation {
   destinations: readonly ShellDestination[];
   open: (id: string) => void;
+  openSettings: (tab: SettingsTabId) => void;
 }
 
 const ShellNavigationContext = createContext<ShellNavigation>({
   destinations: [],
   open: () => undefined,
+  openSettings: () => undefined,
 });
 
 export const ShellNavigationProvider = ShellNavigationContext.Provider;

@@ -492,11 +492,31 @@ export function HeartIcon(props: IconProps) {
   );
 }
 
-export function BellIcon(props: IconProps) {
+export function ClockIcon(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="M6 10a6 6 0 1 1 12 0c0 4.2 1.6 6 2 6.5H4c.4-.5 2-2.3 2-6.5Z" />
-      <path d="M10 19.5a2.2 2.2 0 0 0 4 0" />
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </Icon>
+  );
+}
+
+export function CardIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+      <path d="M3 10h18" />
+      <path d="M7 15h3" />
+    </Icon>
+  );
+}
+
+export function AlertIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4.5 21 19.5H3L12 4.5Z" />
+      <path d="M12 10v4.2" />
+      <path d="M12 17h.01" />
     </Icon>
   );
 }
