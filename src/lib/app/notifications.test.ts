@@ -78,6 +78,16 @@ describe('notificationView', () => {
     expect(smaller.body).not.toContain('free plan');
   });
 
+  it('writes the global kinds without any per-account parameter', () => {
+    expect(notificationView(record('announcement'), now).title).toBe('News from Zekke');
+    const maintenance = notificationView(record('maintenance', { starts_at: '2026-10-30T02:00:00Z' }), now);
+    expect(maintenance.tone).toBe('warning');
+    expect(maintenance.body).toContain('around');
+    expect(notificationView(record('maintenance'), now).body).not.toContain('around');
+    expect(notificationView(record('terms_changed'), now).body).toBe('We updated the terms of service.');
+    expect(notificationView(record('terms_changed', { effective_at: '2026-11-15T00:00:00Z' }), now).body).toContain('apply from');
+  });
+
   it('shows something sensible for a kind this version does not know', () => {
     const view = notificationView(record('lottery_won'), now);
     expect(view.title).toBe('Account notice');

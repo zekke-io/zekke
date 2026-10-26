@@ -190,6 +190,30 @@ function copyFor(record: NotificationRecord): Pick<NotificationView, 'title' | '
         tone: 'info',
       };
     }
+    case 'announcement':
+      return {
+        title: 'News from Zekke',
+        body: 'There is something new in Zekke. Update the app if it does not show yet.',
+        tone: 'info',
+      };
+    case 'maintenance': {
+      const start = notificationDate(params.starts_at);
+      return {
+        title: 'Planned maintenance',
+        body:
+          `Zekke may be unavailable for a short time${start === undefined ? '' : ` around ${start}`}. ` +
+          'Your data is safe, and the app works again as soon as it ends.',
+        tone: 'warning',
+      };
+    }
+    case 'terms_changed': {
+      const from = notificationDate(params.effective_at);
+      return {
+        title: 'The terms were updated',
+        body: from === undefined ? 'We updated the terms of service.' : `We updated the terms of service. They apply from ${from}.`,
+        tone: 'info',
+      };
+    }
     case 'data_deleted': {
       const files = count(params.files);
       const bytes = count(params.deleted_bytes);
