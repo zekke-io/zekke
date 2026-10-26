@@ -1,15 +1,21 @@
-import { isKnownKind, type NotificationKind } from '@/lib/notifications';
+import { isCanonicalUuid } from '@/lib/api';
+import { isKnownKind, type NotificationKind, type NotificationRecord } from '@/lib/notifications';
 import { notificationAge } from './notifications';
+import { feedbackTitle, repliesLabel } from './feedback-thread';
+import type { FeedbackSummary } from '@/lib/feedback';
 
 export const ACTIVITY_COPY = {
   title: 'Activity',
   tabsLabel: 'Show',
   notifications: 'Notifications',
   recent: 'Recent',
+  feedback: 'Feedback',
   emptyNotifications:
     'Nothing new. Invitations, shared items and notices about your plan and storage appear here.',
   emptyRecent: 'Nothing yet. The notes, passwords, secrets and documents you change appear here.',
   failedNotifications: 'Notifications could not be loaded. Try again in a moment.',
+  emptyFeedback: 'Nothing sent yet. What you tell the Zekke team, and what they answer, appears here as one conversation.',
+  failedFeedback: 'Your feedback could not be loaded. Try again in a moment.',
   failedRecent: 'Recent items could not be loaded. Try again in a moment.',
   loadMore: 'Show older',
   loading: 'Loading…',
@@ -18,7 +24,9 @@ export const ACTIVITY_COPY = {
     count === 0 ? 'Activity' : count === 1 ? 'Activity, 1 unread' : `Activity, ${count} unread`,
 } as const;
 
-export type ActivityTabId = 'notifications' | 'recent';
+export const NOTIFICATIONS_WATCH_MS = 10_000;
+
+export type ActivityTabId = 'notifications' | 'feedback' | 'recent';
 
 export type NotificationIconId = 'card' | 'alert' | 'trash' | 'sharing' | 'chat' | 'info';
 
@@ -64,8 +72,61 @@ export function notificationAction(kind: string): NotificationAction | undefined
   return isKnownKind(kind) ? ACTIONS[kind] : undefined;
 }
 
-export function unreadAtLoad(records: readonly { read_at?: string }[]): number {
-  return records.filter((record) => record.read_at === undefined).length;
+export function feedbackOpenedBy(record: Pick<NotificationRecord, 'kind' | 'params'>): string | undefined {
+  const id = record.params.feedback_id;
+  return record.kind === 'feedback_replied' && typeof id === 'string' && isCanonicalUuid(id) ? id : undefined;
+}
+
+export function inNotificationsTab<T extends Pick<NotificationRecord, 'kind' | 'params'>>(records: readonly T[]): T[] {
+  return records.filter((record) => feedbackOpenedBy(record) === undefined);
+}
+
+export function unreadAtLoad(records: readonly Pick<NotificationRecord, 'kind' | 'params' | 'read_at'>[]): number {
+  return inNotificationsTab(records).filter((record) => record.read_at === undefined).length;
+}
+
+export function unreadByFeedback(records: readonly NotificationRecord[]): Map<string, string[]> {
+  const unread = new Map<string, string[]>();
+  for (const record of records) {
+    const feedback = feedbackOpenedBy(record);
+    if (feedback !== undefined && record.read_at === undefined) {
+      unread.set(feedback, [...(unread.get(feedback) ?? []), record.id]);
+    }
+  }
+  return unread;
+}
+
+export const FEEDBACK_PREVIEW_MAX_CHARACTERS = 90;
+
+export interface FeedbackItem {
+  id: string;
+  title: string;
+  preview: string;
+  replies: string;
+  when: string;
+  unread: boolean;
+}
+
+function singleLine(text: string): string {
+  const characters = Array.from(text.replace(/\s+/g, ' ').trim());
+  return characters.length <= FEEDBACK_PREVIEW_MAX_CHARACTERS
+    ? characters.join('')
+    : `${characters.slice(0, FEEDBACK_PREVIEW_MAX_CHARACTERS).join('').trimEnd()}…`;
+}
+
+export function feedbackItems(
+  feedback: readonly FeedbackSummary[],
+  unread: ReadonlyMap<string, readonly string[]>,
+  now: Date = new Date(),
+): FeedbackItem[] {
+  return feedback.map((item) => ({
+    id: item.id,
+    title: feedbackTitle(item.message),
+    preview: `${item.lastAuthor === 'team' ? 'Zekke team' : 'You'}: ${singleLine(item.lastMessage)}`,
+    replies: repliesLabel(item.replyCount),
+    when: notificationAge(item.lastActivityAt, now),
+    unread: unread.has(item.id),
+  }));
 }
 
 export const RECENT_LIMIT = 12;

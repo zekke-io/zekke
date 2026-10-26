@@ -41,3 +41,4 @@ export * from './spreadsheet-rebuild';
 export * from './region';
 export * from './features';
 export * from './activity';
+export * from './feedback-thread';

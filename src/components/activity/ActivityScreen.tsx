@@ -1,16 +1,20 @@
 'use client';
 
-import { useEffect, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react';
 import {
   ACTIVITY_COPY,
+  feedbackItems,
+  inNotificationsTab,
   notificationAction,
   notificationIcon,
   notificationView,
-  type ActivityTabId,
   type NotificationIconId,
   type RecentKind,
+  NOTIFICATIONS_WATCH_MS,
 } from '@/lib/app';
 import { useNotifications } from './NotificationsProvider';
+import { listFeedback, type FeedbackSummary } from '@/lib/feedback';
+import { useAuthedContext } from '@/components/session/ZekkeProvider';
 import { useRecentItems } from './useRecentItems';
 import { useShellNavigation } from '@/components/shell/ShellNavigation';
 import { Empty, Spinner } from '@/components/ui';
@@ -62,32 +66,63 @@ const ACTION =
   'inline-flex h-11 shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-brand-100 px-[1.125rem] text-compact font-extrabold text-ink transition-colors hover:bg-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50';
 
 export default function ActivityScreen() {
-  const [tab, setTab] = useState<ActivityTabId>('notifications');
-  const { unreadWhenLoaded } = useNotifications();
+  const { activityTab: tab, setActivityTab: setTab } = useShellNavigation();
+  const { unreadWhenLoaded, unreadFeedback, unread, reload, check } = useNotifications();
+  const seen = useRef<number>(undefined);
+
+  useEffect(() => {
+    if (seen.current === undefined || unread > seen.current) {
+      void reload();
+    }
+    seen.current = unread;
+  }, [unread, reload]);
+
+  useEffect(() => {
+    const watch = () => {
+      if (document.visibilityState === 'visible') {
+        void check();
+      }
+    };
+    const timer = window.setInterval(watch, NOTIFICATIONS_WATCH_MS);
+    document.addEventListener('visibilitychange', watch);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', watch);
+    };
+  }, [check]);
 
   return (
     <div className="flex max-w-[61.25rem] flex-col gap-6">
       <div
         role="group"
         aria-label={ACTIVITY_COPY.tabsLabel}
-        className="flex w-fit gap-1 rounded-full bg-brand-100 p-1"
+        className="flex w-fit gap-1 rounded-full bg-chip p-1"
       >
         <TabButton active={tab === 'notifications'} onClick={() => setTab('notifications')}>
           {ACTIVITY_COPY.notifications}
-          {unreadWhenLoaded > 0 ? (
-            <span className="inline-flex h-[1.375rem] min-w-[1.375rem] items-center justify-center rounded-full bg-brand-500 px-1.5 text-[0.8125rem] font-black text-on-brand">
-              {unreadWhenLoaded}
-            </span>
-          ) : null}
+          <Count value={unreadWhenLoaded} />
+        </TabButton>
+        <TabButton active={tab === 'feedback'} onClick={() => setTab('feedback')}>
+          {ACTIVITY_COPY.feedback}
+          <Count value={unreadFeedback.size} />
         </TabButton>
         <TabButton active={tab === 'recent'} onClick={() => setTab('recent')}>
           {ACTIVITY_COPY.recent}
         </TabButton>
       </div>
 
-      {tab === 'notifications' ? <NotificationsList /> : <RecentList />}
+      {tab === 'notifications' ? <NotificationsList /> : tab === 'feedback' ? <FeedbackList /> : <RecentList />}
     </div>
   );
+}
+
+function Count({ value }: { value: number }) {
+  return value > 0 ? (
+    <span className="inline-flex h-[1.375rem] min-w-[1.375rem] items-center justify-center rounded-full bg-brand-500 px-1.5 text-[0.8125rem] font-black text-on-brand">
+      {value}
+    </span>
+  ) : null;
 }
 
 function TabButton({
@@ -104,7 +139,7 @@ function TabButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-full px-[1.375rem] text-base font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${active ? 'bg-ink text-ground' : 'text-ink hover:bg-brand-200'}`}
+      className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-full px-[1.375rem] text-base font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${active ? 'bg-chip-active text-on-chip-active' : 'text-ink hover:bg-brand-200'}`}
     >
       {children}
     </button>
@@ -112,12 +147,9 @@ function TabButton({
 }
 
 function NotificationsList() {
-  const { records, hasMore, failed, loading, reload, loadMore } = useNotifications();
+  const { records, hasMore, failed, loading, loadMore } = useNotifications();
   const { open, openSettings } = useShellNavigation();
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  const shown = records === undefined ? undefined : inNotificationsTab(records);
 
   const now = new Date();
 
@@ -137,10 +169,10 @@ function NotificationsList() {
         </div>
       ) : null}
       {failed ? <p className="text-compact text-danger">{ACTIVITY_COPY.failedNotifications}</p> : null}
-      {records !== undefined && records.length === 0 && !failed ? (
+      {shown !== undefined && shown.length === 0 && !failed ? (
         <Empty>{ACTIVITY_COPY.emptyNotifications}</Empty>
       ) : null}
-      {records?.map((record) => {
+      {shown?.map((record) => {
         const view = notificationView(record, now);
         const Glyph = NOTIFICATION_ICONS[notificationIcon(record.kind)];
         const action = notificationAction(record.kind);
@@ -168,6 +200,84 @@ function NotificationsList() {
           type="button"
           disabled={loading}
           onClick={() => void loadMore()}
+          className={`${ACTION} self-start disabled:cursor-default disabled:opacity-60`}
+        >
+          {loading ? ACTIVITY_COPY.loading : ACTIVITY_COPY.loadMore}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function FeedbackList() {
+  const context = useAuthedContext();
+  const { records, unreadFeedback } = useNotifications();
+  const { openFeedback } = useShellNavigation();
+  const [feedback, setFeedback] = useState<FeedbackSummary[]>();
+  const [cursor, setCursor] = useState<string>();
+  const [failed, setFailed] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const load = useCallback(
+    async (from?: string) => {
+      setLoading(true);
+      try {
+        const page = await listFeedback(context, { cursor: from });
+        setFeedback((current) => (from === undefined ? page.feedback : [...(current ?? []), ...page.feedback]));
+        setCursor(page.nextCursor);
+        setFailed(false);
+      } catch {
+        setFailed(true);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [context],
+  );
+
+  useEffect(() => {
+    void load();
+  }, [load, records]);
+
+  const items = feedback === undefined ? undefined : feedbackItems(feedback, unreadFeedback);
+
+  return (
+    <div className="flex flex-col gap-3">
+      {items === undefined && !failed ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : null}
+      {failed ? <p className="text-compact text-danger">{ACTIVITY_COPY.failedFeedback}</p> : null}
+      {items !== undefined && items.length === 0 ? <Empty>{ACTIVITY_COPY.emptyFeedback}</Empty> : null}
+      {items?.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => openFeedback(item.id)}
+          className={`${ROW} w-full cursor-pointer text-left hover:bg-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50`}
+        >
+          <span className={TILE}>
+            <ChatIcon className="h-6 w-6 shrink-0" />
+          </span>
+          <span className="flex min-w-0 grow flex-col">
+            <span className="truncate text-base font-extrabold text-ink">{item.title}</span>
+            <span className="truncate text-[0.8125rem] font-semibold text-ink-muted">{item.preview}</span>
+          </span>
+          {item.unread ? (
+            <span role="img" aria-label="Unread" className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-500" />
+          ) : null}
+          <span className="flex shrink-0 flex-col items-end text-[0.8125rem] font-semibold text-ink-muted">
+            <span>{item.when}</span>
+            <span>{item.replies}</span>
+          </span>
+        </button>
+      ))}
+      {cursor !== undefined ? (
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void load(cursor)}
           className={`${ACTION} self-start disabled:cursor-default disabled:opacity-60`}
         >
           {loading ? ACTIVITY_COPY.loading : ACTIVITY_COPY.loadMore}
