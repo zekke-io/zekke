@@ -30,6 +30,7 @@ export * from './pairing';
 export * from './trash';
 export * from './feedback';
 export * from './notifications';
+export * from './shared-refresh';
 export * from './build';
 export * from './plan';
 export * from './scroll-chrome';
