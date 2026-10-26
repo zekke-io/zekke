@@ -11,6 +11,7 @@ import {
   lockExit,
   removeBrowserExit,
   type SettingsTabId,
+  type ActivityTabId,
   lockedScopes,
 } from '@/lib/app';
 import { useZekke } from '@/components/session/ZekkeProvider';
@@ -24,6 +25,9 @@ import PasswordsScreen from '@/components/passwords/PasswordsScreen';
 import AccountMenu from './AccountMenu';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
+import ActivityScreen from '@/components/activity/ActivityScreen';
+import FeedbackThreadScreen from '@/components/feedback/FeedbackThreadScreen';
+import NotificationsProvider from '@/components/activity/NotificationsProvider';
 import FeedbackButton from './FeedbackButton';
 import NewVersionNotice from './NewVersionNotice';
 import CheckoutReturnNotice from '@/components/plan/CheckoutReturnNotice';
@@ -57,6 +61,8 @@ import {
   LockSessionIcon,
   LogOutIcon,
   MenuIcon,
+  ClockIcon,
+  ChatIcon,
   CloseIcon,
   NotesIcon,
   PasswordsIcon,
@@ -98,6 +104,7 @@ interface NavItem {
   actions?: ComponentType;
   miniatures?: boolean;
   scope?: Scope;
+  hidden?: boolean;
 }
 
 const NAV_ITEMS = [
@@ -212,6 +219,22 @@ const NAV_ITEMS = [
     appIcon: TrashFeatureIcon,
     screen: TrashScreen,
   },
+  {
+    id: 'activity',
+    label: 'Activity',
+    description: 'Notifications, and what you changed lately.',
+    icon: ClockIcon,
+    screen: ActivityScreen,
+    hidden: true,
+  },
+  {
+    id: 'feedback',
+    label: 'Feedback',
+    description: 'Your message and the answers from the Zekke team.',
+    icon: ChatIcon,
+    screen: FeedbackThreadScreen,
+    hidden: true,
+  },
 ] as const satisfies readonly NavItem[];
 
 type TabId = (typeof NAV_ITEMS)[number]['id'];
@@ -236,8 +259,11 @@ export default function AppShell() {
   const [chainProblemDismissed, setChainProblemDismissed] = useState(false);
   const [stripSlot, setStripSlot] = useState<HTMLElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [feedbackId, setFeedbackId] = useState<string>();
+  const [activityTab, setActivityTab] = useState<ActivityTabId>('notifications');
   const [panelSlot, setPanelSlot] = useState<HTMLElement | null>(null);
 
+  const sidebarItems = navItems.filter((item) => item.hidden !== true);
   const exits = sessionExits();
   const lockable = lockExit(exits);
   const leave = removeBrowserExit(exits);
@@ -272,15 +298,16 @@ export default function AppShell() {
   }
 
   return (
+    <NotificationsProvider>
     <VaultRevealProvider>
       <div className="flex min-h-screen bg-ground">
         <aside className="sticky top-[var(--staging-banner-h)] hidden h-[calc(100vh-var(--staging-banner-h))] w-64 shrink-0 flex-col border-r-2 border-line bg-ground px-3 py-5 md:flex">
-          <SidebarContent navItems={navItems} active={tab} storage={holds('files')} onSelect={select} />
+          <SidebarContent navItems={sidebarItems} active={tab} storage={holds('files')} onSelect={select} />
         </aside>
 
         {menuOpen ? (
           <MobileMenu onClose={() => setMenuOpen(false)}>
-            <SidebarContent navItems={navItems} active={tab} storage={holds('files')} onSelect={select} />
+            <SidebarContent navItems={sidebarItems} active={tab} storage={holds('files')} onSelect={select} />
           </MobileMenu>
         ) : null}
 
@@ -303,7 +330,7 @@ export default function AppShell() {
                 <div className="flex shrink-0 items-center gap-2">
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
-                  <NotificationBell />
+                  <NotificationBell active={tab === 'activity'} onOpen={() => select('activity')} />
                   <FeedbackButton />
                   <ThemeToggle />
                   <AccountMenu
@@ -325,7 +352,7 @@ export default function AppShell() {
                 <div className="flex shrink-0 items-center gap-2">
                   {ScreenActions ? <ScreenActions /> : null}
                   {lockable ? <LockButton exit={lockable} onRun={run} /> : null}
-                  <NotificationBell />
+                  <NotificationBell active={tab === 'activity'} onOpen={() => select('activity')} />
                   <FeedbackButton />
                   <ThemeToggle />
                   <AccountMenu
@@ -375,7 +402,18 @@ export default function AppShell() {
 
             <ScreenStripSlotProvider value={stripSlot}>
               <SidePanelSlotProvider value={panelSlot}>
-                <ShellNavigationProvider value={{ destinations, open: select }}>
+                <ShellNavigationProvider value={{
+                    destinations,
+                    open: select,
+                    openSettings: setSettingsTab,
+                    openFeedback: (id) => {
+                      setFeedbackId(id);
+                      select('feedback');
+                    },
+                    feedbackId,
+                    activityTab,
+                    setActivityTab,
+                  }}>
                   <Screen />
                 </ShellNavigationProvider>
               </SidePanelSlotProvider>
@@ -390,6 +428,7 @@ export default function AppShell() {
         <div ref={setPanelSlot} className="contents" />
       </div>
     </VaultRevealProvider>
+    </NotificationsProvider>
   );
 }
 

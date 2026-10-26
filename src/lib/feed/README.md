@@ -70,6 +70,9 @@ keeps out of the feed.
 - **`useFeedChanges(scope, reload)`** reloads a screen when a sync it did not ask for brought a change
   to its scope. A screen's own read is a quiet sync (`{ notify: false }`), so loading never triggers
   a second load.
+- **`useReloadOnReturn(reload)`** reloads a screen each time its tab becomes visible again. The documents
+  and spreadsheets shelves use it because a title and a first page are CRDT content that the feed never
+  sees change: after editing in another tab, coming back shows the new title and page.
 
 An idle signed-in tab therefore costs one `GET /changes` per held scope per poll, each answered by
 the API from `sync_heads` without touching an item table.

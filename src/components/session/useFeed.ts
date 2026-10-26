@@ -50,3 +50,21 @@ export function useFeedChanges(scope: FeedScope, reload: () => unknown): void {
 
   useEffect(() => feedFor(context).subscribe(scope, () => void latest.current()), [context, scope]);
 }
+
+export function useReloadOnReturn(reload: () => unknown): void {
+  const latest = useRef(reload);
+
+  useEffect(() => {
+    latest.current = reload;
+  }, [reload]);
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void latest.current();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, []);
+}

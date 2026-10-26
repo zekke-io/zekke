@@ -12,6 +12,10 @@ export const NOTIFICATION_KINDS = [
   'data_deleted',
   'connection_invited',
   'item_shared',
+  'announcement',
+  'maintenance',
+  'terms_changed',
+  'feedback_replied',
 ] as const;
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];

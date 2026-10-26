@@ -2881,4 +2881,79 @@ most **1000 characters** after trimming.
 **Errors:** `400 INVALID_BODY` · `400 BAD_REQUEST` (empty, only whitespace, over 1000 characters) ·
 `401 UNAUTHORIZED` · `429 TOO_MANY_REQUESTS` · `500 INTERNAL_ERROR`.
 
-The apps call nothing else of this domain.
+### `GET /feedback` — 🔒 protected
+
+Any device, no signature, not rate limited. The caller's own feedback, **one item per conversation**, the
+newest activity first, paged like every list (`limit`, `cursor`).
+
+**`200 OK`**
+
+```json
+{
+  "message": "Feedback retrieved",
+  "data": {
+    "feedback": [
+      {
+        "id": "uuid",
+        "message": "The unlock screen is very bright at night.",
+        "last_message": "Dark, Noite is live.",
+        "last_author": "team",
+        "reply_count": 2,
+        "created_at": "2026-10-22T12:00:00Z",
+        "last_activity_at": "2026-10-23T14:58:00Z"
+      }
+    ]
+  },
+  "page": { "has_more": false }
+}
+```
+
+`message` is the first message of the thread; `last_message` and `last_author` (`team` or `user`) are its
+newest, and equal the first message and `user` while nothing was answered.
+
+**Errors:** `400 BAD_REQUEST` (a bad `limit` or `cursor`) · `401 UNAUTHORIZED` · `500 INTERNAL_ERROR`.
+
+### `GET /feedback/{id}` — 🔒 protected
+
+Any device, no signature, not rate limited. The caller's own feedback and what was answered, for the
+thread a `feedback_replied` notification opens (its `params` are `{feedback_id, reply}`).
+
+**`200 OK`**
+
+```json
+{
+  "message": "Feedback retrieved",
+  "data": {
+    "id": "uuid",
+    "message": "The unlock screen is very bright at night.",
+    "created_at": "2026-10-22T12:00:00Z",
+    "replies": [
+      { "id": "uuid", "author": "team", "message": "Dark, Noite is live.", "created_at": "2026-10-23T09:12:00Z" }
+    ]
+  }
+}
+```
+
+`author` is `team` or `user`; replies are oldest first. **Another account's feedback, one whose account
+was deleted and an unknown id are all `404 NOT_FOUND`.**
+
+**Errors:** `400 BAD_REQUEST` (an id that is not a canonical UUID) · `401 UNAUTHORIZED` · `404 NOT_FOUND`
+· `500 INTERNAL_ERROR`.
+
+### `POST /feedback/{id}/replies` — 🔒 protected
+
+Any device, no signature. The sender answers the team: `{ "message": "…" }`, at most **1000
+characters** after trimming. The same per-account rate limit as `POST /feedback`. It sends no
+notification.
+
+**`201 Created`**
+
+```json
+{ "message": "Reply received", "data": { "id": "uuid", "created_at": "2026-10-24T12:00:00Z" } }
+```
+
+**Errors:** `400 INVALID_BODY` · `400 BAD_REQUEST` · `401 UNAUTHORIZED` · `404 NOT_FOUND` ·
+`429 TOO_MANY_REQUESTS` · `500 INTERNAL_ERROR`.
+
+The apps call nothing else of this domain. The admin's `/internal/feedback` routes are not client
+routes.
