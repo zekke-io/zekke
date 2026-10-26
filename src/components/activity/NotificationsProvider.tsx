@@ -7,31 +7,38 @@ import {
   unreadNotificationCount,
   type NotificationRecord,
 } from '@/lib/notifications';
-import { unreadAtLoad, unreadIds } from '@/lib/app';
+import { inNotificationsTab, unreadAtLoad, unreadByFeedback, unreadIds } from '@/lib/app';
 import { useAuthedContext, useZekke } from '@/components/session/ZekkeProvider';
 
 const POLL_MS = 5 * 60 * 1000;
+const LATEST_PAGE = 50;
 
 export interface Notifications {
   unread: number;
   records: NotificationRecord[] | undefined;
+  unreadFeedback: ReadonlyMap<string, readonly string[]>;
   unreadWhenLoaded: number;
   hasMore: boolean;
   failed: boolean;
   loading: boolean;
   reload: () => Promise<void>;
+  check: () => Promise<void>;
   loadMore: () => Promise<void>;
+  markFeedbackRead: (feedbackId: string) => Promise<void>;
 }
 
 const NotificationsContext = createContext<Notifications>({
   unread: 0,
   records: undefined,
+  unreadFeedback: new Map(),
   unreadWhenLoaded: 0,
   hasMore: false,
   failed: false,
   loading: false,
   reload: async () => undefined,
+  check: async () => undefined,
   loadMore: async () => undefined,
+  markFeedbackRead: async () => undefined,
 });
 
 export function useNotifications(): Notifications {
@@ -76,7 +83,7 @@ export default function NotificationsProvider({ children }: { children: ReactNod
 
   const markShown = useCallback(
     async (shown: NotificationRecord[]) => {
-      const ids = unreadIds(shown);
+      const ids = unreadIds(inNotificationsTab(shown));
       if (ids.length === 0) {
         return;
       }
@@ -124,9 +131,48 @@ export default function NotificationsProvider({ children }: { children: ReactNod
     }
   }, [cursor, load]);
 
+  const unreadFeedback = useMemo(() => unreadByFeedback(records ?? []), [records]);
+
+  const markFeedbackRead = useCallback(
+    async (feedbackId: string) => {
+      try {
+        const newest = await listNotifications(context, { limit: LATEST_PAGE });
+        const ids = unreadByFeedback(newest.notifications).get(feedbackId) ?? [];
+        if (ids.length === 0) {
+          known.current = newest.unreadCount;
+          setUnread(newest.unreadCount);
+          return;
+        }
+        await markNotificationsRead(context, ids);
+        const readAt = new Date().toISOString();
+        setRecords((current) =>
+          current?.map((record) => (ids.includes(record.id) ? { ...record, read_at: readAt } : record)),
+        );
+        const remaining = Math.max(0, newest.unreadCount - ids.length);
+        known.current = remaining;
+        setUnread(remaining);
+      } catch {
+        return;
+      }
+    },
+    [context],
+  );
+
   const value = useMemo(
-    () => ({ unread, records, unreadWhenLoaded, hasMore: cursor !== undefined, failed, loading, reload, loadMore }),
-    [unread, records, unreadWhenLoaded, cursor, failed, loading, reload, loadMore],
+    () => ({
+      unread,
+      records,
+      unreadFeedback,
+      unreadWhenLoaded,
+      hasMore: cursor !== undefined,
+      failed,
+      loading,
+      reload,
+      check: poll,
+      loadMore,
+      markFeedbackRead,
+    }),
+    [unread, records, unreadFeedback, unreadWhenLoaded, cursor, failed, loading, reload, poll, loadMore, markFeedbackRead],
   );
 
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;

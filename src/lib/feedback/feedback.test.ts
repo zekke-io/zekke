@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TokenStore } from '@/lib/api';
-import { feedbackCharacters, isSendableFeedback, MAX_FEEDBACK_CHARACTERS, sendFeedback } from './index';
+import {
+  answerFeedback,
+  feedbackCharacters,
+  isSendableFeedback,
+  listFeedback,
+  MAX_FEEDBACK_CHARACTERS,
+  readFeedbackThread,
+  sendFeedback,
+} from './index';
 
 function mockFetch(spec: { status: number; body?: unknown }) {
   const calls: { url: string; method: string; headers: Record<string, string>; body?: Record<string, unknown> }[] = [];
@@ -82,5 +90,154 @@ describe('sendFeedback', () => {
     mockFetch({ status: 429, body: { error: 'TOO_MANY_REQUESTS' } });
 
     await expect(sendFeedback(context(), 'hello')).rejects.toThrow();
+  });
+});
+
+const FEEDBACK_ID = '00000000-0000-4000-8000-0000000000f1';
+
+describe('readFeedbackThread', () => {
+  it('reads the sender\'s message with its replies, oldest first as the server sends them', async () => {
+    const calls = mockFetch({
+      status: 200,
+      body: {
+        data: {
+          id: FEEDBACK_ID,
+          message: 'Too bright at night',
+          created_at: '2026-10-25T18:40:00Z',
+          replies: [
+            { id: 'r1', author: 'team', message: 'Thank you', created_at: '2026-10-26T09:12:00Z' },
+            { id: 'r2', author: 'user', message: 'Great', created_at: '2026-10-26T10:00:00Z' },
+          ],
+        },
+      },
+    });
+
+    const thread = await readFeedbackThread(context(), FEEDBACK_ID);
+
+    expect(calls[0]).toMatchObject({ method: 'GET' });
+    expect(calls[0].url).toContain(`/feedback/${FEEDBACK_ID}`);
+    expect(thread.message).toBe('Too bright at night');
+    expect(thread.replies.map((reply) => reply.author)).toEqual(['team', 'user']);
+    expect(thread.replies[0]).toEqual({
+      id: 'r1',
+      author: 'team',
+      message: 'Thank you',
+      createdAt: '2026-10-26T09:12:00Z',
+    });
+  });
+
+  it('treats a missing reply list as no replies and an unknown author as the team', async () => {
+    mockFetch({ status: 200, body: { data: { id: FEEDBACK_ID, message: 'Hi', created_at: '2026-10-25T18:40:00Z' } } });
+    expect((await readFeedbackThread(context(), FEEDBACK_ID)).replies).toEqual([]);
+
+    mockFetch({
+      status: 200,
+      body: {
+        data: {
+          id: FEEDBACK_ID,
+          message: 'Hi',
+          created_at: '2026-10-25T18:40:00Z',
+          replies: [{ id: 'r1', author: 'robot', message: 'x', created_at: '2026-10-26T09:12:00Z' }],
+        },
+      },
+    });
+    expect((await readFeedbackThread(context(), FEEDBACK_ID)).replies[0].author).toBe('team');
+  });
+
+  it('refuses an id that is not a canonical UUID before any request', async () => {
+    const calls = mockFetch({ status: 200, body: { data: {} } });
+
+    await expect(readFeedbackThread(context(), 'not-an-id')).rejects.toThrow();
+    expect(calls).toHaveLength(0);
+  });
+});
+
+describe('answerFeedback', () => {
+  it('posts the trimmed reply to the thread and returns its id', async () => {
+    const calls = mockFetch({ status: 201, body: { data: { id: 'r3', created_at: '2026-10-26T11:00:00Z' } } });
+
+    const sent = await answerFeedback(context(), FEEDBACK_ID, '  Thanks!  ');
+
+    expect(calls[0]).toMatchObject({ method: 'POST', body: { message: 'Thanks!' } });
+    expect(calls[0].url).toContain(`/feedback/${FEEDBACK_ID}/replies`);
+    expect(sent).toEqual({ id: 'r3', createdAt: '2026-10-26T11:00:00Z' });
+  });
+
+  it('refuses an empty or over-long reply before any request', async () => {
+    const calls = mockFetch({ status: 201, body: { data: {} } });
+
+    await expect(answerFeedback(context(), FEEDBACK_ID, '   ')).rejects.toThrow();
+    await expect(answerFeedback(context(), FEEDBACK_ID, 'a'.repeat(MAX_FEEDBACK_CHARACTERS + 1))).rejects.toThrow();
+    expect(calls).toHaveLength(0);
+  });
+});
+
+describe('listFeedback', () => {
+  it('reads one item per conversation with the newest message and the paging cursor', async () => {
+    const calls = mockFetch({
+      status: 200,
+      body: {
+        data: {
+          feedback: [
+            {
+              id: FEEDBACK_ID,
+              message: 'Too bright at night',
+              last_message: 'Dark, Noite is live.',
+              last_author: 'team',
+              reply_count: 2,
+              created_at: '2026-10-25T18:40:00Z',
+              last_activity_at: '2026-10-26T09:12:00Z',
+            },
+          ],
+        },
+        page: { has_more: true, next_cursor: 'c2' },
+      },
+    });
+
+    const page = await listFeedback(context(), { limit: 20, cursor: 'c1' });
+
+    expect(calls[0]).toMatchObject({ method: 'GET' });
+    expect(calls[0].url).toContain('/feedback?');
+    expect(calls[0].url).toContain('limit=20');
+    expect(calls[0].url).toContain('cursor=c1');
+    expect(page.nextCursor).toBe('c2');
+    expect(page.feedback).toEqual([
+      {
+        id: FEEDBACK_ID,
+        message: 'Too bright at night',
+        lastMessage: 'Dark, Noite is live.',
+        lastAuthor: 'team',
+        replyCount: 2,
+        createdAt: '2026-10-25T18:40:00Z',
+        lastActivityAt: '2026-10-26T09:12:00Z',
+      },
+    ]);
+  });
+
+  it('has no cursor on the last page and reads an unknown author as the sender', async () => {
+    mockFetch({
+      status: 200,
+      body: {
+        data: {
+          feedback: [
+            {
+              id: FEEDBACK_ID,
+              message: 'Hi',
+              last_message: 'Hi',
+              last_author: 'robot',
+              reply_count: 0,
+              created_at: '2026-10-25T18:40:00Z',
+              last_activity_at: '2026-10-25T18:40:00Z',
+            },
+          ],
+        },
+        page: { has_more: false },
+      },
+    });
+
+    const page = await listFeedback(context());
+
+    expect(page.nextCursor).toBeUndefined();
+    expect(page.feedback[0].lastAuthor).toBe('user');
   });
 });

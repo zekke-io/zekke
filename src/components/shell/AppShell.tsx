@@ -11,6 +11,7 @@ import {
   lockExit,
   removeBrowserExit,
   type SettingsTabId,
+  type ActivityTabId,
   lockedScopes,
 } from '@/lib/app';
 import { useZekke } from '@/components/session/ZekkeProvider';
@@ -25,6 +26,7 @@ import AccountMenu from './AccountMenu';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
 import ActivityScreen from '@/components/activity/ActivityScreen';
+import FeedbackThreadScreen from '@/components/feedback/FeedbackThreadScreen';
 import NotificationsProvider from '@/components/activity/NotificationsProvider';
 import FeedbackButton from './FeedbackButton';
 import NewVersionNotice from './NewVersionNotice';
@@ -60,6 +62,7 @@ import {
   LogOutIcon,
   MenuIcon,
   ClockIcon,
+  ChatIcon,
   CloseIcon,
   NotesIcon,
   PasswordsIcon,
@@ -224,6 +227,14 @@ const NAV_ITEMS = [
     screen: ActivityScreen,
     hidden: true,
   },
+  {
+    id: 'feedback',
+    label: 'Feedback',
+    description: 'Your message and the answers from the Zekke team.',
+    icon: ChatIcon,
+    screen: FeedbackThreadScreen,
+    hidden: true,
+  },
 ] as const satisfies readonly NavItem[];
 
 type TabId = (typeof NAV_ITEMS)[number]['id'];
@@ -248,6 +259,8 @@ export default function AppShell() {
   const [chainProblemDismissed, setChainProblemDismissed] = useState(false);
   const [stripSlot, setStripSlot] = useState<HTMLElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [feedbackId, setFeedbackId] = useState<string>();
+  const [activityTab, setActivityTab] = useState<ActivityTabId>('notifications');
   const [panelSlot, setPanelSlot] = useState<HTMLElement | null>(null);
 
   const sidebarItems = navItems.filter((item) => item.hidden !== true);
@@ -389,7 +402,18 @@ export default function AppShell() {
 
             <ScreenStripSlotProvider value={stripSlot}>
               <SidePanelSlotProvider value={panelSlot}>
-                <ShellNavigationProvider value={{ destinations, open: select, openSettings: setSettingsTab }}>
+                <ShellNavigationProvider value={{
+                    destinations,
+                    open: select,
+                    openSettings: setSettingsTab,
+                    openFeedback: (id) => {
+                      setFeedbackId(id);
+                      select('feedback');
+                    },
+                    feedbackId,
+                    activityTab,
+                    setActivityTab,
+                  }}>
                   <Screen />
                 </ShellNavigationProvider>
               </SidePanelSlotProvider>
